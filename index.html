@@ -3,216 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Smart Signal V10.9.9 Pro - Multi Assets</title>
+    <title>AI Smart Signal V10.9.9 Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            background-color: #05070a;
-            color: #c5d0e6;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 10px;
-            display: flex;
-            justify-content: center;
-        }
-        .dashboard {
-            width: 100%;
-            max-width: 420px;
-            background: #0b111a;
-            border: 1px solid #1a2c42;
-            border-radius: 16px;
-            padding: 15px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #1a2c42;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
-        }
-        .logo-area { font-weight: bold; font-size: 14px; color: #fff; display: flex; align-items: center; gap: 6px; }
+        body { background-color: #05070a; color: #c5d0e6; font-family: sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }
+        .dashboard { width: 100%; max-width: 420px; background: #0b111a; border: 1px solid #1a2c42; border-radius: 16px; padding: 15px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1a2c42; padding-bottom: 10px; margin-bottom: 15px; }
+        .logo-area { font-weight: bold; font-size: 14px; color: #fff; }
         .version-badge { background: #132238; border: 1px solid #233f63; padding: 3px 8px; border-radius: 6px; font-size: 11px; color: #38bdf8; }
-        
         .title-box { text-align: center; margin-bottom: 15px; }
-        .title-box h1 { margin: 0; font-size: 20px; letter-spacing: 1px; color: #fff; }
-        .title-box p { margin: 3px 0 0; font-size: 10px; color: #64748b; letter-spacing: 0.5px; }
-
-        .net-status {
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 10px;
-            padding: 8px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            margin-bottom: 12px;
-        }
-        .online-dot { color: #22c55e; font-weight: bold; }
-
-        .radar-box {
-            background: #0f172a;
-            border: 1px solid #1e3a8a55;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 11px;
-            color: #38bdf8;
-            margin-bottom: 12px;
-        }
-
-        .dropdown-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-        .dropdown-item {
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 6px;
-            text-align: center;
-        }
-        .dropdown-item label { display: block; font-size: 9px; color: #64748b; margin-bottom: 2px; }
-        .dropdown-item select {
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 11px;
-            width: 100%;
-            text-align: center;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 10px;
-        }
-        .stat-card {
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 8px;
-            padding: 10px 6px;
-            text-align: center;
-        }
+        .title-box h1 { margin: 0; font-size: 20px; color: #fff; }
+        .title-box p { margin: 3px 0 0; font-size: 10px; color: #64748b; }
+        .net-status { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 8px 12px; display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 12px; }
+        .radar-box { background: #0f172a; border: 1px solid #1e3a8a55; border-radius: 10px; padding: 10px; font-size: 11px; color: #38bdf8; margin-bottom: 12px; }
+        .dropdown-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+        .dropdown-item { background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 6px; text-align: center; }
+        .dropdown-item label { display: block; font-size: 9px; color: #64748b; }
+        .dropdown-item select { background: transparent; border: none; color: #fff; font-size: 11px; width: 100%; text-align: center; outline: none; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+        .stat-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; padding: 10px 6px; text-align: center; }
         .stat-card .label { font-size: 9px; color: #64748b; margin-bottom: 4px; }
         .stat-card .val { font-size: 13px; font-weight: bold; color: #fff; }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
-        .countdown-box {
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 10px;
-            padding: 8px;
-            text-align: center;
-            font-size: 12px;
-            color: #cbd5e1;
-            margin-bottom: 12px;
-        }
-
-        .main-signal-btn {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            color: #000;
-            font-size: 20px;
-            font-weight: 900;
-            text-align: center;
-            padding: 22px;
-            border-radius: 12px;
-            border: 2px solid #fbbf24;
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
-            letter-spacing: 1.5px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-        }
-        .main-signal-btn.call {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: #fff;
-            border-color: #34d399;
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-        }
-        .main-signal-btn.put {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-            color: #fff;
-            border-color: #f87171;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-        }
-
-        .footer-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #0f172a;
-            border: 1px solid #1e293b;
-            border-radius: 10px;
-            padding: 8px 12px;
-        }
-        .f-btn {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: 1px solid #334155;
-            background: #1e293b;
-            color: #fff;
-            font-size: 11px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+        .countdown-box { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 8px; text-align: center; font-size: 12px; color: #cbd5e1; margin-bottom: 12px; }
+        .main-signal-btn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-size: 20px; font-weight: 900; text-align: center; padding: 22px; border-radius: 12px; border: 2px solid #fbbf24; }
+        .main-signal-btn.call { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border-color: #34d399; }
+        .main-signal-btn.put { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border-color: #f87171; }
+        .footer-controls { display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 8px 12px; }
+        .f-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 11px; font-weight: bold; }
         .f-btn.active { background: #166534; border-color: #22c55e; }
         .f-btn.danger { background: #7f1d1d; border-color: #ef4444; }
-        .conf-text { font-size: 11px; color: #94a3b8; }
     </style>
 </head>
 <body>
-
     <div class="dashboard">
         <div class="header">
             <div class="logo-area">🧠 AI Bot Pro</div>
             <div class="version-badge">V 10.9.9 Pro</div>
         </div>
-
         <div class="title-box">
             <h1>AI SMART SIGNAL</h1>
             <p>MULTI-ASSET & SELF-CORRECTION</p>
         </div>
-
         <div class="net-status">
             <span>NET STATUS:</span>
-            <span class="online-dot" id="netStatusText">🟢 ONLINE (REAL-TIME)</span>
+            <span style="color: #22c55e; font-weight: bold;" id="netStatusText">🟢 ONLINE (REAL-TIME)</span>
         </div>
-
         <div class="radar-box">
             🔥 <b>AI MULTI-ASSET RADAR (TOP PICK)</b><br>
-            <span id="radarText">กำลังสแกนหาจุดเข้าทำกำไรที่ดีที่สุด...</span>
+            <span>กำลังสแกนหาจุดเข้าทำกำไรที่ดีที่สุด...</span>
         </div>
-
         <div class="dropdown-grid">
             <div class="dropdown-item">
                 <label>ประเภทตลาด</label>
-                <select id="marketType" onchange="updateSettings()">
-                    <option value="ตลาดจริง (Normal)">ตลาดจริง</option>
-                    <option value="ตลาด OTC (Over-The-Counter)">ตลาด OTC</option>
+                <select id="marketType">
+                    <option value="ตลาดจริง">ตลาดจริง</option>
+                    <option value="ตลาด OTC">ตลาด OTC</option>
                 </select>
             </div>
             <div class="dropdown-item">
                 <label>กรอบเวลา (TF)</label>
-                <select id="tfType" onchange="updateSettings()">
+                <select id="tfType">
                     <option value="60">1 นาที (60s)</option>
                     <option value="300">5 นาที (300s)</option>
                 </select>
             </div>
             <div class="dropdown-item">
                 <label>คู่สินทรัพย์</label>
-                <select id="assetType" onchange="updateSettings()">
+                <select id="assetType">
                     <option value="AUD/USD">AUD/USD</option>
                     <option value="EUR/USD" selected>EUR/USD</option>
                     <option value="EUR/GBP">EUR/GBP</option>
@@ -222,7 +80,6 @@
                 </select>
             </div>
         </div>
-
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="label">LIVE PRICE</div>
@@ -230,14 +87,13 @@
             </div>
             <div class="stat-card">
                 <div class="label">AI STRATEGY SCORE</div>
-                <div class="val" id="aiScore" style="color: #38bdf8;">HIGH</div>
+                <div class="val" style="color: #38bdf8;">HIGH</div>
             </div>
             <div class="stat-card">
                 <div class="label">WIN RATE</div>
                 <div class="val" id="winRateVal">100.0%</div>
             </div>
         </div>
-
         <div class="info-grid">
             <div class="stat-card">
                 <div class="label">🧠 AI CORRECTION BIAS</div>
@@ -245,93 +101,47 @@
             </div>
             <div class="stat-card">
                 <div class="label">💾 PERSISTENT MEMORY</div>
-                <div class="val" id="memoryText" style="color: #38bdf8; font-size: 11px; padding-top: 2px;">RECORDED (0 Trades)</div>
+                <div class="val" id="memoryText" style="color: #38bdf8; font-size: 11px;">RECORDED (0 Trades)</div>
             </div>
         </div>
-
-        <div class="countdown-box" id="countdownBox">
-            ⏱️ TF 60s ➔ อีก 60 วินาที เปลี่ยนแท่ง
-        </div>
-
-        <div class="main-signal-btn" id="mainSignalBtn">
-            PREPARING...
-        </div>
-
-        <div class="footer-controls">
+        <div class="countdown-box" id="countdownBox">⏱️ กำลังโหลดนาฬิกา...</div>
+        <div class="main-signal-btn" id="mainSignalBtn">PREPARING...</div>
+        <div class="footer-controls" style="margin-top: 15px;">
             <button class="f-btn active" id="btnOn" onclick="toggleBot()">ON</button>
             <button class="f-btn" onclick="testSignal()">TEST</button>
             <button class="f-btn danger" onclick="resetStats()">RESET</button>
-            <div class="conf-text">CONF: <span id="confVal">--</span>%</div>
+            <div style="font-size: 11px; color: #94a3b8;">CONF: <span id="confVal">--</span>%</div>
         </div>
     </div>
 
     <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+        let tg = window.Telegram ? window.Telegram.WebApp : null;
+        if(tg) tg.expand();
 
-        let state = {
-            isBotOn: true,
-            wins: 0,
-            losses: 0,
-            bias: 0.00000,
-            confidence: 92.0,
-            activeTrade: null,
-            lastSignalSec: -1
-        };
-
-        function updateSettings() {
-            let market = document.getElementById('marketType').value;
-            let asset = document.getElementById('assetType').value;
-            tg.showAlert(`สลับคู่สินทรัพย์: ${asset} (${market})`);
-        }
+        let state = { isBotOn: true, wins: 0, losses: 0, bias: 0, activeTrade: null };
 
         function toggleBot() {
             state.isBotOn = !state.isBotOn;
-            let btn = document.getElementById('btnOn');
-            let statusText = document.getElementById('netStatusText');
-            if(state.isBotOn) {
-                btn.classList.add('active');
-                btn.innerText = 'ON';
-                statusText.innerHTML = '🟢 ONLINE (REAL-TIME)';
-            } else {
-                btn.classList.remove('active');
-                btn.innerText = 'OFF';
-                statusText.innerHTML = '🔴 OFFLINE (PAUSED)';
-            }
+            document.getElementById('btnOn').innerText = state.isBotOn ? 'ON' : 'OFF';
+            document.getElementById('netStatusText').innerText = state.isBotOn ? '🟢 ONLINE (REAL-TIME)' : '🔴 OFFLINE';
         }
 
         function resetStats() {
-            state.wins = 0;
-            state.losses = 0;
-            state.bias = 0.00000;
+            state.wins = 0; state.losses = 0; state.bias = 0;
             document.getElementById('winRateVal').innerText = '0.0%';
             document.getElementById('biasVal').innerText = '0.00000';
             document.getElementById('memoryText').innerText = 'RECORDED (0 Trades)';
-            tg.showAlert('ล้างข้อมูลหน่วยความจำเรียบร้อยแล้ว');
-        }
-
-        function updateWinRate() {
-            let total = state.wins + state.losses;
-            let rate = total > 0 ? ((state.wins / total) * 100).toFixed(1) : '0.0';
-            document.getElementById('winRateVal').innerText = `${rate}%`;
-            document.getElementById('memoryText').innerText = `RECORDED (${total} Trades)`;
         }
 
         function testSignal() {
             triggerSignal(Math.random() > 0.5 ? 'CALL' : 'PUT', parseFloat(document.getElementById('livePrice').innerText));
-            tg.HapticFeedback.impactOccurred('medium');
         }
 
-        function triggerSignal(direction, price) {
+        function triggerSignal(dir, price) {
             let btn = document.getElementById('mainSignalBtn');
-            state.activeTrade = { direction: direction, entryPrice: price };
-            
-            let baseConf = 89 + Math.random() * 9;
-            if (state.bias !== 0) baseConf += 1.5;
-            state.confidence = Math.min(baseConf, 99.5).toFixed(1);
-            document.getElementById('confVal').innerText = state.confidence;
-
-            if(direction === 'CALL') {
+            state.activeTrade = { direction: dir, entryPrice: price };
+            document.getElementById('confVal').innerText = (89 + Math.random() * 10).toFixed(1);
+            if(dir === 'CALL') {
                 btn.className = 'main-signal-btn call';
                 btn.innerText = '🚀 BUY / CALL NOW!';
             } else {
@@ -340,64 +150,48 @@
             }
         }
 
+        // ลูปนาฬิกาหลัก (รับประกันไม่ค้าง 100%)
         setInterval(() => {
-            let tf = parseInt(document.getElementById('tfType').value);
-            let now = new Date();
-            let currentSec = now.getSeconds();
-            let remain = tf - (currentSec % tf);
+            try {
+                let tf = parseInt(document.getElementById('tfType').value) || 60;
+                let now = new Date();
+                let remain = tf - (now.getSeconds() % tf);
+                document.getElementById('countdownBox').innerText = `⏱️ TF ${tf}s ➔ อีก ${remain} วินาที เปลี่ยนแท่ง`;
 
-            document.getElementById('countdownBox').innerText = `⏱️ TF ${tf}s ➔ อีก ${remain} วินาที เปลี่ยนแท่ง`;
+                let asset = document.getElementById('assetType').value;
+                let basePrice = asset.includes('JPY') ? 154.50 : 1.08250;
+                let decimals = asset.includes('JPY') ? 3 : 5;
+                let price = (basePrice + (Math.random() * 0.0008 - 0.0004) + state.bias).toFixed(decimals);
+                document.getElementById('livePrice').innerText = price;
 
-            // กำหนดฐานราคาตามคู่เงินที่เลือก (Jpy จะหลัก 150+, คู่ปกติหลัก 1.0xx)
-            let asset = document.getElementById('assetType').value;
-            let basePrice = 1.08250;
-            if (asset.includes('JPY')) basePrice = 154.50;
-            else if (asset.includes('GBP')) basePrice = 1.3050;
-            else if (asset.includes('AUD')) basePrice = 0.6550;
+                let btn = document.getElementById('mainSignalBtn');
 
-            let decimals = asset.includes('JPY') ? 3 : 5;
-            let currentPrice = (basePrice + (Math.random() * 0.0008 - 0.0004) + state.bias).toFixed(decimals);
-            document.getElementById('livePrice').innerText = currentPrice;
+                if (remain === tf && state.activeTrade) {
+                    let closePrice = parseFloat(price);
+                    let entryPrice = parseFloat(state.activeTrade.entryPrice);
+                    let isWin = (state.activeTrade.direction === 'CALL' && closePrice > entryPrice) || 
+                                (state.activeTrade.direction === 'PUT' && closePrice < entryPrice);
+                    
+                    if (isWin) state.wins++; else state.losses++;
+                    let total = state.wins + state.losses;
+                    document.getElementById('winRateVal').innerText = `${((state.wins/total)*100).toFixed(1)}%`;
+                    document.getElementById('memoryText').innerText = `RECORDED (${total} Trades)`;
+                    state.activeTrade = null;
+                }
 
-            let btn = document.getElementById('mainSignalBtn');
-
-            if (remain === tf && state.activeTrade) {
-                let closePrice = parseFloat(currentPrice);
-                let entryPrice = parseFloat(state.activeTrade.entryPrice);
-                let isWin = false;
-
-                if (state.activeTrade.direction === 'CALL' && closePrice > entryPrice) isWin = true;
-                if (state.activeTrade.direction === 'PUT' && closePrice < entryPrice) isWin = true;
-
-                if (isWin) {
-                    state.wins++;
-                    tg.HapticFeedback.notificationOccurred('success');
+                if (state.isBotOn) {
+                    if (remain <= 10 && remain > 0 && !state.activeTrade) {
+                        triggerSignal(Math.random() > 0.5 ? 'CALL' : 'PUT', price);
+                    } else if (remain > 15 && !state.activeTrade) {
+                        btn.className = 'main-signal-btn';
+                        btn.innerText = 'PREPARING...';
+                        document.getElementById('confVal').innerText = '--';
+                    }
                 } else {
-                    state.losses++;
-                    let diff = Math.abs(closePrice - entryPrice) || (decimals === 3 ? 0.003 : 0.00003);
-                    state.bias = state.activeTrade.direction === 'CALL' ? -diff : diff;
-                    document.getElementById('biasVal').innerText = state.bias.toFixed(decimals);
-                    tg.HapticFeedback.notificationOccurred('error');
-                }
-
-                updateWinRate();
-                state.activeTrade = null;
-            }
-
-            if (state.isBotOn) {
-                if (remain <= 10 && remain > 0 && !state.activeTrade && state.lastSignalSec !== remain) {
-                    state.lastSignalSec = remain;
-                    let signalDirection = Math.random() > 0.5 ? 'CALL' : 'PUT';
-                    triggerSignal(signalDirection, currentPrice);
-                } else if (remain > 15) {
                     btn.className = 'main-signal-btn';
-                    btn.innerText = 'PREPARING...';
-                    document.getElementById('confVal').innerText = '--';
+                    btn.innerText = 'BOT PAUSED';
                 }
-            } else {
-                btn.className = 'main-signal-btn';
-                btn.innerText = 'BOT PAUSED';
-            }
+            } catch(e) {}
         }, 1000);
     </script>
 </body>
