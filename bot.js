@@ -67,4 +67,21 @@ const server = http.createServer((req, res) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Backend Server is listening on port ${PORT}`);
-});
+});const https = require('https');
+
+const TOKEN = '7543265749:AAG4lZp3V575E7a95mK4a0hYQWswJxklBfE_g';
+const CHAT_ID = '7259169600'; // ตรวจสอบว่าเป็น Chat ID ของคุณจริงๆ หรือยัง
+
+function sendTestMessage() {
+    const message = `🤖 บอทเชื่อมต่อสำเร็จและเริ่มทำงานแล้ว!`;
+    const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+    
+    https.get(url, (res) => {
+        console.log(`Telegram status: ${res.statusCode}`);
+    }).on("error", (err) => {
+        console.error("Error:", err.message);
+    });
+}
+
+sendTestMessage();
+
