@@ -1,7 +1,7 @@
 const http = require('http');
 const https = require('https');
 
-const TOKEN = '8839850954:AAFYB0XuxgaIDhgPIdl2Dwa-g30J4QiHMwk'.trim();
+const TOKEN = '8839850954:AAGSlkoHu_BFtuM7Fzc5kPhFjRD1nhmtyZs'.trim();
 const CHAT_ID = '6451332748'.trim();
 
 function sendTelegramAlert(messageText) {
