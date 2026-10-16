@@ -1,53 +1,50 @@
-const fetch = require('node-fetch');
+const http = require('http');
+const https = require('https');
 
-const TOKEN = '8918231194:AAHrcJ9QsPo_hT9AnWRxJWQWswJxklBfE_g';
-const CHAT_ID = '6451332748';
+// ตั้งค่า Telegram Bot
+const TOKEN = '7543265749:AAG4lZp3V575E7a95mK4a0hYQWswJxklBfE_g';
+const CHAT_ID = '7259169600';
 
-const assets = ['EURUSD', 'GBPUSD', 'GBPJPY', 'EURJPY', 'AUDUSD', 'EURGBP'];
-let basePrices = {
-    'EURUSD': 1.08500, 'GBPUSD': 1.26500, 'GBPJPY': 190.500,
-    'EURJPY': 163.200, 'AUDUSD': 0.65500, 'EURGBP': 0.85700
-};
-
-let priceHistory = {};
-assets.forEach(a => priceHistory[a] = []);
-let lastSentSignal = {};
-
-async function sendTelegramAlert(signal, asset, price) {
-    try {
-        let emoji = signal === 'CALL' ? '🟢' : '🔴';
-        let text = `🚨 AI 24/7 CLOUD SIGNAL 🚨\n\n${emoji} สัญญาณ: ${signal}\n📊 สินทรัพย์: ${asset}\n💰 ราคา: ${price}\n⚡ สถานะ: บอทรันบนคลาวด์ตลอด 24 ชม.`;
-        let url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(text)}`;
-
-        let res = await fetch(url);
-        if (res.ok) {
-            console.log(`[Telegram Sent] ${signal} on ${asset}`);
-        }
-    } catch(e) {
-        console.log("Telegram Error:", e);
-    }
+// ฟังก์ชันส่งข้อความเข้า Telegram
+function sendTelegramAlert(signal, asset, price) {
+    const emoji = signal === 'CALL' ? '🟢' : '🔴';
+    const message = `🤖 AI Trading Signal\n\n${emoji} สัญญาณ: ${signal}\n📊 สินทรัพย์: ${asset}\n💰 ราคา: ${price}\n⏰ เวลา: ${new Date().toLocaleTimeString()}`;
+    
+    const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+    
+    https.get(url, (res) => {
+        let data = '';
+        res.on('data', (chunk) => { data += chunk; });
+        res.on('end', () => { console.log(`[Telegram Sent] ${signal} on ${asset}`); });
+    }).on("error", (err) => {
+        console.error("Error sending telegram:", err.message);
+    });
 }
 
+// จำลองการทำงาน AI เทรด
+const assets = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'EURJPY'];
+let basePrices = { 'EURUSD': 1.0850, 'GBPUSD': 1.2950, 'USDJPY': 152.00, 'AUDUSD': 0.6650, 'EURJPY': 190.50 };
+let priceHistory = {};
+let lastSentSignal = {};
+
+assets.forEach(asset => {
+    priceHistory[asset] = [];
+    lastSentSignal[asset] = null;
+});
+
 function analyzeMarket(asset) {
-    let h = priceHistory[asset];
-    if (h.length < 5) return 'WAIT';
-
-    let mom = h[h.length - 1] - h[h.length - 4];
-    let score = 0;
-    if (mom > 0) score += 1; else if (mom < 0) score -= 1;
-
-    let lastDiff = h[h.length - 1] - h[h.length - 2];
-    if (lastDiff < -0.0002) score += 1.5;
-    if (lastDiff > 0.0002) score -= 1.5;
-
+    let score = Math.random() * 2 - 1;
     return score >= 0.5 ? 'CALL' : (score <= -0.5 ? 'PUT' : 'WAIT');
 }
 
 console.log("🤖 AI Cloud Trading Bot Started & Running 24/7...");
 
+// ทดสอบส่งข้อความทันทีเมื่อบอทเริ่มทำงาน
+sendTelegramAlert('CALL', 'EURUSD', '1.08500');
+
 setInterval(() => {
     assets.forEach(asset => {
-        let delta = (Math.random() - 0.495) * (asset.includes('JPY') ? 0.015 : 0.00015);
+        let delta = (Math.random() - 0.495) * (asset.includes('JPY') ? 0.05 : 0.0005);
         basePrices[asset] += delta;
         priceHistory[asset].push(basePrices[asset]);
         if (priceHistory[asset].length > 30) priceHistory[asset].shift();
@@ -68,13 +65,15 @@ setInterval(() => {
             lastSentSignal[asset] = null;
         }
     });
-}, 1000);const http = require('http');
+}, 1000);
+
+// สร้าง HTTP Server รองรับ Render Health Check (ป้องกัน Timeout)
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('AI Trading Bot is running 24/7!\n');
 });
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
 });
-
