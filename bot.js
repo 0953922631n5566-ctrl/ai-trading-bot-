@@ -1,7 +1,7 @@
 const http = require('http');
 const https = require('https');
 
-const TOKEN = '8908622988:AAE9cdAvw21XjLjHRMFzkWYojYP9Qv51mMU';
+const TOKEN = '8839850954:AAFYB0XuxgaIDhgPIdl2Dwa-g30J4QiHMwk';
 const CHAT_ID = '6451332748';
 
 function sendTelegramAlert(signal, asset, price, confidence) {
