@@ -2,7 +2,7 @@ const http = require('http');
 const https = require('https');
 
 const TOKEN = '7543265749:AAG4lZp3V575E7a95mK4a0hYQWswJxklBfE_g';
-const CHAT_ID = '7259169600';
+const CHAT_ID = '6451332748';
 
 function sendTelegramAlert(signal, asset, price, confidence) {
     const emoji = signal === 'CALL' ? '🟢' : '🔴';
