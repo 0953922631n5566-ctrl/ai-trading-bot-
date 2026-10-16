@@ -4,33 +4,30 @@ const https = require('https');
 const TOKEN = '7543265749:AAG4lZp3V575E7a95mK4a0hYQWswJxklBfE_g';
 const CHAT_ID = '6451332748';
 
-function sendTelegramAlert(signal, asset, price, confidence) {
-    const emoji = signal === 'CALL' ? '🟢' : '🔴';
-    const message = `🚀 AI SMART SIGNAL (BACKEND)\n\n${emoji} สัญญาณ: ${signal}\n📊 สินทรัพย์: ${asset}\n💰 ราคา: ${price}\n🎯 ความเชื่อมั่น (CONF): ${confidence}%\n⏰ เวลา: ${new Date().toLocaleTimeString()}`;
-    
+function sendTelegramAlert(message) {
     const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
     
     https.get(url, (res) => {
         let data = '';
         res.on('data', (chunk) => { data += chunk; });
         res.on('end', () => { 
-            console.log(`[Telegram Sent Successfully] ${signal} on ${asset} (${confidence}%)`); 
+            console.log(`[Telegram Sent Successfully]`); 
         });
     }).on("error", (err) => {
         console.error("Error sending telegram:", err.message);
     });
 }
 
+// ส่งข้อความแจ้งเตือนทันทีที่บอทเริ่มทำงาน
+console.log("🤖 AI Smart Signal Backend Engine Started & Running 24/7...");
+sendTelegramAlert("🚀 AI SMART SIGNAL (BACKEND)\n\n🟢 บอทเชื่อมต่อและเริ่มทำงานสำเร็จแล้ว พร้อมส่งสัญญาณซื้อขาย!");
+
+// ระบบจำลองสัญญาณเทรดทุกๆ 1 นาที
 const assets = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'EURJPY'];
 let basePrices = { 'EURUSD': 1.1210, 'GBPUSD': 1.2950, 'USDJPY': 152.00, 'AUDUSD': 0.6650, 'EURJPY': 190.50 };
 let lastSentSignal = {};
 
-assets.forEach(asset => {
-    lastSentSignal[asset] = null;
-});
-
-console.log("🤖 AI Smart Signal Backend Engine Started & Running 24/7...");
-sendTelegramAlert('CALL', 'EURUSD', '1.12109', '96.0');
+assets.forEach(asset => { lastSentSignal[asset] = null; });
 
 setInterval(() => {
     assets.forEach(asset => {
@@ -48,7 +45,10 @@ setInterval(() => {
             if (signal !== 'WAIT' && lastSentSignal[asset] !== signal) {
                 let dec = asset.includes('JPY') ? 3 : 5;
                 let currentPriceStr = basePrices[asset].toFixed(dec);
-                sendTelegramAlert(signal, asset, currentPriceStr, confidence);
+                const emoji = signal === 'CALL' ? '🟢' : '🔴';
+                const msg = `🚀 AI SMART SIGNAL (BACKEND)\n\n${emoji} สัญญาณ: ${signal}\n📊 สินทรัพย์: ${asset}\n💰 ราคา: ${currentPriceStr}\n🎯 ความเชื่อมั่น: ${confidence}%\n⏰ เวลา: ${new Date().toLocaleTimeString()}`;
+                
+                sendTelegramAlert(msg);
                 lastSentSignal[asset] = signal;
             }
         }
