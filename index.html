@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Signal Pro V10.9.9</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background-color: #0b0e14;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 15px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: #131823;
+            border: 1px solid #1f293d;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        h2 { text-align: center; color: #00ffcc; font-size: 18px; margin-bottom: 5px; }
+        .subtitle { text-align: center; font-size: 11px; color: #8a99ad; margin-bottom: 20px; }
+        .card {
+            background: #1a2233;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #283548;
+        }
+        .label { font-size: 12px; color: #8a99ad; }
+        .value { font-size: 16px; font-weight: bold; color: #fff; margin-top: 4px; }
+        .signal-box {
+            background: #ffaa00;
+            color: #000;
+            font-weight: bold;
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            margin-top: 15px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+        }
+        button.active { background: #16a34a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>AI SMART SIGNAL V10.9.9</h2>
+        <div class="subtitle">TELEGRAM MINI APP DASHBOARD</div>
+        
+        <div class="card">
+            <div class="label">NET STATUS</div>
+            <div class="value" id="netStatus" style="color: #22c55e;">🟢 ONLINE (REAL-TIME)</div>
+        </div>
+
+        <div class="card">
+            <div class="label">คู่สินทรัพย์ปัจจุบัน</div>
+            <div class="value" id="currentAsset">EUR/USD</div>
+        </div>
+
+        <div class="card">
+            <div class="label">ราคาปัจจุบัน (LIVE PRICE)</div>
+            <div class="value" id="livePrice">1.08250</div>
+        </div>
+
+        <div class="card">
+            <div class="label">อัตราชนะ (WIN RATE)</div>
+            <div class="value">83.3% (5W / 1L)</div>
+        </div>
+
+        <div class="signal-box" id="signalBox">
+            ⏳ PREPARING...
+        </div>
+
+        <div class="btn-group">
+            <button onclick="setAsset('EUR/USD')">EUR/USD</button>
+            <button onclick="setAsset('GOLD')">GOLD</button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function setAsset(asset) {
+            document.getElementById('currentAsset').innerText = asset;
+            tg.showAlert("เปลี่ยนคู่สินทรัพย์เป็น " + asset + " เรียบร้อย!");
+        }
+
+        setInterval(() => {
+            let price = (1.0800 + Math.random() * 0.0050).toFixed(5);
+            document.getElementById('livePrice').innerText = price;
+            
+            let sec = new Date().getSeconds();
+            if (sec > 50) {
+                document.getElementById('signalBox').innerText = Math.random() > 0.5 ? '🚀 BUY / CALL NOW!' : '🔴 SELL / PUT NOW!';
+                document.getElementById('signalBox').style.background = '#22c55e';
+            } else {
+                document.getElementById('signalBox').innerText = '⏳ PREPARING...';
+                document.getElementById('signalBox').style.background = '#ffaa00';
+            }
+        }, 2000);
+    </script>
+</body>
+</html>
