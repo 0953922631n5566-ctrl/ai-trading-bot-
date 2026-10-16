@@ -4,7 +4,7 @@ const https = require('https');
 const TOKEN = '8839850954:AAGSlkoHu_BFtuM7Fzc5kPhFjRD1nhmtyZs'.trim();
 const CHAT_ID = '6451332748'.trim();
 
-// การตั้งค่าสถานะเริ่มต้นของบอร์ด
+// เก็บข้อมูลสถานะของแผงควบคุม Dashboard
 let state = {
     market: 'ตลาดจริง (Normal)',
     tf: '1 นาที (60s)',
@@ -25,7 +25,6 @@ function getThaiTime() {
     });
 }
 
-// คำนวณเวลานับถอยหลังเปลี่ยนแท่งเทียน
 function getRemainingSeconds(tfSec) {
     const now = new Date();
     const currentSec = now.getSeconds() + (now.getMilliseconds() / 1000);
@@ -33,7 +32,6 @@ function getRemainingSeconds(tfSec) {
     return Math.floor(remain);
 }
 
-// สร้างข้อความ Dashboard สไตล์ V10.9.9 Pro
 function renderDashboardText() {
     const remainSec = getRemainingSeconds(state.tfSeconds);
     const totalTrades = state.wins + state.losses;
@@ -41,7 +39,6 @@ function renderDashboardText() {
     const netStatus = state.isBotOn ? '🟢 ONLINE (REAL-TIME)' : '🔴 OFFLINE (PAUSED)';
     const livePrice = (1.0800 + Math.random() * 0.0050).toFixed(5);
     
-    // กำหนดสถานะสัญญาณตามเวลาแท่งเทียน
     let signalBox = '⏳ PREPARING...';
     if (remainSec <= 10 && state.isBotOn) {
         signalBox = state.signal;
@@ -78,7 +75,6 @@ _TELEGRAM BOT INTEGRATION_
 ⏰ *เวลาไทย:* \`${getThaiTime()}\``;
 }
 
-// สร้างปุ่มกด Interactive
 function getDashboardKeyboard() {
     return {
         inline_keyboard: [
@@ -100,13 +96,37 @@ function getDashboardKeyboard() {
     };
 }
 
-// ฟังก์ชันส่งหรือแก้ไขข้อความ
+function postRequest(urlStr, jsonString, callback) {
+    try {
+        const u = new URL(urlStr);
+        const options = {
+            hostname: u.hostname,
+            path: u.pathname,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(jsonString)
+            }
+        };
+
+        const req = https.request(options, (res) => {
+            let body = '';
+            res.on('data', chunk => body += chunk);
+            res.on('end', () => {
+                try { callback(JSON.parse(body)); } catch(e) {}
+            });
+        });
+        req.on('error', (e) => {});
+        req.write(jsonString);
+        req.end();
+    } catch(e) {}
+}
+
 function sendOrUpdateDashboard() {
     const text = renderDashboardText();
     const keyboard = getDashboardKeyboard();
 
     if (!state.lastMsgId) {
-        // ถ้ายังไม่มีข้อความบอร์ด ให้ส่งข้อความใหม่
         const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
         const payload = JSON.stringify({
             chat_id: CHAT_ID,
@@ -121,7 +141,6 @@ function sendOrUpdateDashboard() {
             }
         });
     } else {
-        // ถ้ามีบอร์ดแล้ว ให้ Edit ข้อความเดิม
         const url = `https://api.telegram.org/bot${TOKEN}/editMessageText`;
         const payload = JSON.stringify({
             chat_id: CHAT_ID,
@@ -131,37 +150,10 @@ function sendOrUpdateDashboard() {
             reply_markup: keyboard
         });
 
-        postRequest(url, payload, (data) => {
-            // ถ้า Message ไม่เปลี่ยน หรือเกิด Error ให้ข้ามไป
-        });
+        postRequest(url, payload, (data) => {});
     }
 }
 
-function postRequest(urlStr, jsonString, callback) {
-    const u = new URL(urlStr);
-    const options = {
-        hostname: u.hostname,
-        path: u.pathname,
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Content-Length': Buffer.byteLength(jsonString)
-        }
-    };
-
-    const req = https.request(options, (res) => {
-        let body = '';
-        res.on('data', chunk => body += chunk);
-        res.on('end', () => {
-            try { callback(JSON.parse(body)); } catch(e) {}
-        });
-    });
-    req.on('error', (e) => console.error(e));
-    req.write(jsonString);
-    req.end();
-}
-
-// เช็กการกดปุ่มจาก Telegram
 function checkUpdates() {
     https.get(`https://api.telegram.org/bot${TOKEN}/getUpdates?offset=-1`, (res) => {
         let body = '';
@@ -171,6 +163,7 @@ function checkUpdates() {
                 const json = JSON.parse(body);
                 if (json.ok && json.result.length > 0) {
                     const up = json.result[json.result.length - 1];
+                    
                     if (up.callback_query) {
                         const data = up.callback_query.data;
                         
@@ -189,12 +182,12 @@ function checkUpdates() {
                             state.confidence = (88 + Math.random() * 11).toFixed(1);
                         }
 
-                        // ตอบกลับ Callback ไม่ให้ปุ่มหมุนค้าง
                         https.get(`https://api.telegram.org/bot${TOKEN}/answerCallbackQuery?callback_query_id=${up.callback_query.id}`).on('error', ()=>{});
                         sendOrUpdateDashboard();
                     }
+                    
                     if (up.message && up.message.text === '/start') {
-                        state.lastMsgId = null; // ส่งบอร์ดใหม่เมื่อพิมพ์ /start
+                        state.lastMsgId = null;
                         sendOrUpdateDashboard();
                     }
                 }
@@ -203,11 +196,10 @@ function checkUpdates() {
     }).on('error', ()=>{});
 }
 
-console.log("🤖 Dashboard V10.9.9 Pro Engine Started...");
+console.log("🤖 Single-Message Dashboard Engine Started...");
 
-// อัปเดตหน้า Dashboard ทุกๆ 3 วินาที (เพื่อให้เวลานับถอยหลังรันสดๆ)
+// อัปเดตเฉพาะตัวข้อความเดิมทุกๆ 3 วินาที (ไม่ส่งข้อความใหม่เพิ่ม)
 setInterval(() => {
-    // สุ่มสร้างสัญญาณใหม่เมื่อเข้าสู่ช่วง 10 วินาทีสุดท้ายของแท่งเทียน
     const rem = getRemainingSeconds(state.tfSeconds);
     if (rem === 10 && state.isBotOn) {
         state.signal = Math.random() > 0.5 ? '🚀 BUY / CALL NOW!' : '🔴 SELL / PUT NOW!';
@@ -223,7 +215,7 @@ setInterval(checkUpdates, 2000);
 
 const server = http.createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('AI Dashboard Pro V10.9.9 Running\n');
+    res.end('AI Single-Dashboard Bot Running\n');
 });
 
 const PORT = process.env.PORT || 3000;
