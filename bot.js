@@ -27,7 +27,7 @@ console.log("🤖 AI Smart Signal Bot Started...");
 // 1. ส่งข้อความทักทายทันทีที่เริ่มรัน
 sendTelegramAlert("✅ ระบบ AI Signal เริ่มทำงานสำเร็จแล้ว! (ทดสอบการเชื่อมต่อ)");
 
-// 2. สุ่มส่งสัญญาณทุกๆ 10 วินาที (ป้องกันโดน Telegram บล็อก)
+// 2. สุ่มส่งสัญญาณทุกๆ 10 วินาที
 const assets = ['EURUSD', 'GBPUSD', 'USDJPY'];
 setInterval(() => {
     const asset = assets[Math.floor(Math.random() * assets.length)];
