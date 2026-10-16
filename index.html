@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Smart Signal V10.9.9 Pro</title>
+    <title>AI Smart Signal V10.9.9 Pro - Sound FX</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background-color: #05070a; color: #c5d0e6; font-family: sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }
@@ -26,11 +26,11 @@
         .stat-card .val { font-size: 13px; font-weight: bold; color: #fff; }
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
         .countdown-box { background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 8px; text-align: center; font-size: 12px; color: #cbd5e1; margin-bottom: 12px; }
-        .main-signal-btn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-size: 20px; font-weight: 900; text-align: center; padding: 22px; border-radius: 12px; border: 2px solid #fbbf24; }
-        .main-signal-btn.call { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border-color: #34d399; }
-        .main-signal-btn.put { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border-color: #f87171; }
+        .main-signal-btn { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-size: 20px; font-weight: 900; text-align: center; padding: 22px; border-radius: 12px; border: 2px solid #fbbf24; cursor: pointer; }
+        .main-signal-btn.call { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border-color: #34d399; box-shadow: 0 0 15px rgba(16,185,129,0.5); }
+        .main-signal-btn.put { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; border-color: #f87171; box-shadow: 0 0 15px rgba(239,68,68,0.5); }
         .footer-controls { display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid #1e293b; border-radius: 10px; padding: 8px 12px; }
-        .f-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 11px; font-weight: bold; }
+        .f-btn { padding: 6px 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 11px; font-weight: bold; cursor: pointer; }
         .f-btn.active { background: #166534; border-color: #22c55e; }
         .f-btn.danger { background: #7f1d1d; border-color: #ef4444; }
     </style>
@@ -43,7 +43,7 @@
         </div>
         <div class="title-box">
             <h1>AI SMART SIGNAL</h1>
-            <p>MULTI-ASSET & SELF-CORRECTION</p>
+            <p>HIFI AUDIO & SELF-CORRECTION</p>
         </div>
         <div class="net-status">
             <span>NET STATUS:</span>
@@ -120,6 +120,58 @@
 
         let state = { isBotOn: true, wins: 0, losses: 0, bias: 0, activeTrade: null };
 
+        // ระบบเสียงสังเคราะห์ไฮเทค (Web Audio API)
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            try {
+                initAudio();
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                let now = audioCtx.currentTime;
+
+                if (type === 'CALL') {
+                    // เสียงพุ่งขึ้น (Hi-Tech Success / Buy)
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, now);
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'PUT') {
+                    // เสียงต่ำดุดัน (Warning / Sell)
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'WIN') {
+                    // เสียงชนะรัวสั้นๆ
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(587.33, now);
+                    osc.frequency.setValueAtTime(880, now + 0.1);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch(e) {}
+        }
+
         function toggleBot() {
             state.isBotOn = !state.isBotOn;
             document.getElementById('btnOn').innerText = state.isBotOn ? 'ON' : 'OFF';
@@ -134,13 +186,18 @@
         }
 
         function testSignal() {
-            triggerSignal(Math.random() > 0.5 ? 'CALL' : 'PUT', parseFloat(document.getElementById('livePrice').innerText));
+            let dir = Math.random() > 0.5 ? 'CALL' : 'PUT';
+            triggerSignal(dir, parseFloat(document.getElementById('livePrice').innerText));
         }
 
         function triggerSignal(dir, price) {
             let btn = document.getElementById('mainSignalBtn');
             state.activeTrade = { direction: dir, entryPrice: price };
             document.getElementById('confVal').innerText = (89 + Math.random() * 10).toFixed(1);
+            
+            playSound(dir); // เล่นเสียงแจ้งเตือนอัตโนมัติ
+            if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(dir === 'CALL' ? 'success' : 'warning');
+
             if(dir === 'CALL') {
                 btn.className = 'main-signal-btn call';
                 btn.innerText = '🚀 BUY / CALL NOW!';
@@ -150,7 +207,7 @@
             }
         }
 
-        // ลูปนาฬิกาหลัก (รับประกันไม่ค้าง 100%)
+        // ลูปนาฬิกาหลัก
         setInterval(() => {
             try {
                 let tf = parseInt(document.getElementById('tfType').value) || 60;
@@ -172,7 +229,12 @@
                     let isWin = (state.activeTrade.direction === 'CALL' && closePrice > entryPrice) || 
                                 (state.activeTrade.direction === 'PUT' && closePrice < entryPrice);
                     
-                    if (isWin) state.wins++; else state.losses++;
+                    if (isWin) {
+                        state.wins++;
+                        playSound('WIN');
+                    } else {
+                        state.losses++;
+                    }
                     let total = state.wins + state.losses;
                     document.getElementById('winRateVal').innerText = `${((state.wins/total)*100).toFixed(1)}%`;
                     document.getElementById('memoryText').innerText = `RECORDED (${total} Trades)`;
