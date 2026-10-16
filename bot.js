@@ -68,4 +68,13 @@ setInterval(() => {
             lastSentSignal[asset] = null;
         }
     });
-}, 1000);
+}, 1000);const http = require('http');
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('AI Trading Bot is running 24/7!\n');
+});
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}`);
+});
+
