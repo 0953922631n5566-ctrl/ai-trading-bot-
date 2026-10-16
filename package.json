@@ -1,12 +1,10 @@
 {
-  "name": "ai-trading-telegram-bot",
+  "name": "ai-trading-bot",
   "version": "1.0.0",
-  "description": "AI Trading Bot 24/7 Telegram Notifier",
+  "description": "AI Trading Bot",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
-  "dependencies": {
-    "node-fetch": "^2.6.7"
-  }
+  "dependencies": {}
 }
