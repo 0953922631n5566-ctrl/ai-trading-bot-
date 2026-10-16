@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Smart Signal V10.9.9 Pro - Sound FX</title>
+    <title>AI Smart Signal V10.9.9 Pro - Fixed</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body { background-color: #05070a; color: #c5d0e6; font-family: sans-serif; margin: 0; padding: 10px; display: flex; justify-content: center; }
@@ -43,7 +43,7 @@
         </div>
         <div class="title-box">
             <h1>AI SMART SIGNAL</h1>
-            <p>HIFI AUDIO & SELF-CORRECTION</p>
+            <p>ADVANCED RADAR & BEEP FX</p>
         </div>
         <div class="net-status">
             <span>NET STATUS:</span>
@@ -51,7 +51,7 @@
         </div>
         <div class="radar-box">
             🔥 <b>AI MULTI-ASSET RADAR (TOP PICK)</b><br>
-            <span>กำลังสแกนหาจุดเข้าทำกำไรที่ดีที่สุด...</span>
+            <span id="radarText">กำลังสแกนหาจุดเข้าทำกำไรที่ดีที่สุด...</span>
         </div>
         <div class="dropdown-grid">
             <div class="dropdown-item">
@@ -91,17 +91,17 @@
             </div>
             <div class="stat-card">
                 <div class="label">WIN RATE</div>
-                <div class="val" id="winRateVal">100.0%</div>
+                <div class="val" id="winRateVal">85.0%</div>
             </div>
         </div>
         <div class="info-grid">
             <div class="stat-card">
                 <div class="label">🧠 AI CORRECTION BIAS</div>
-                <div class="val" id="biasVal" style="color: #f43f5e;">0.00000</div>
+                <div class="val" id="biasVal" style="color: #f43f5e;">-0.00003</div>
             </div>
             <div class="stat-card">
                 <div class="label">💾 PERSISTENT MEMORY</div>
-                <div class="val" id="memoryText" style="color: #38bdf8; font-size: 11px;">RECORDED (0 Trades)</div>
+                <div class="val" id="memoryText" style="color: #38bdf8; font-size: 11px;">RECORDED (3 Trades)</div>
             </div>
         </div>
         <div class="countdown-box" id="countdownBox">⏱️ กำลังโหลดนาฬิกา...</div>
@@ -118,56 +118,32 @@
         let tg = window.Telegram ? window.Telegram.WebApp : null;
         if(tg) tg.expand();
 
-        let state = { isBotOn: true, wins: 0, losses: 0, bias: 0, activeTrade: null };
+        let state = { isBotOn: true, wins: 5, losses: 1, bias: -0.00003, activeTrade: null };
 
-        // ระบบเสียงสังเคราะห์ไฮเทค (Web Audio API)
+        // ระบบเสียง "ติ๊ด 3 ครั้ง" (Beep-Beep-Beep)
         let audioCtx = null;
         function initAudio() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
         }
 
-        function playSound(type) {
+        function playBeep3Times() {
             try {
                 initAudio();
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
                 let now = audioCtx.currentTime;
-
-                if (type === 'CALL') {
-                    // เสียงพุ่งขึ้น (Hi-Tech Success / Buy)
+                for (let i = 0; i < 3; i++) {
+                    let osc = audioCtx.createOscillator();
+                    let gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(440, now);
-                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                } else if (type === 'PUT') {
-                    // เสียงต่ำดุดัน (Warning / Sell)
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(300, now);
-                    osc.frequency.exponentialRampToValueAtTime(150, now + 0.2);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                } else if (type === 'WIN') {
-                    // เสียงชนะรัวสั้นๆ
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(587.33, now);
-                    osc.frequency.setValueAtTime(880, now + 0.1);
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
+                    osc.frequency.setValueAtTime(800, now + (i * 0.12));
+                    gain.gain.setValueAtTime(0.2, now + (i * 0.12));
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + (i * 0.12) + 0.08);
+                    
+                    osc.start(now + (i * 0.12));
+                    osc.stop(now + (i * 0.12) + 0.08);
                 }
             } catch(e) {}
         }
@@ -179,7 +155,7 @@
         }
 
         function resetStats() {
-            state.wins = 0; state.losses = 0; state.bias = 0;
+            state.wins = 0; state.losses = 0; state.bias = 0.00000;
             document.getElementById('winRateVal').innerText = '0.0%';
             document.getElementById('biasVal').innerText = '0.00000';
             document.getElementById('memoryText').innerText = 'RECORDED (0 Trades)';
@@ -193,10 +169,10 @@
         function triggerSignal(dir, price) {
             let btn = document.getElementById('mainSignalBtn');
             state.activeTrade = { direction: dir, entryPrice: price };
-            document.getElementById('confVal').innerText = (89 + Math.random() * 10).toFixed(1);
+            document.getElementById('confVal').innerText = (91 + Math.random() * 8).toFixed(1);
             
-            playSound(dir); // เล่นเสียงแจ้งเตือนอัตโนมัติ
-            if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred(dir === 'CALL' ? 'success' : 'warning');
+            playBeep3Times(); // เล่นเสียงติ๊ด 3 ครั้ง
+            if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
             if(dir === 'CALL') {
                 btn.className = 'main-signal-btn call';
@@ -207,7 +183,8 @@
             }
         }
 
-        // ลูปนาฬิกาหลัก
+        // ลูปประมวลผลหลัก (อัปเดตเรดาร์และราคาไม่ให้ค้าง)
+        let assetList = ['AUD/USD', 'EUR/USD', 'EUR/GBP', 'GBP/USD', 'EUR/JPY', 'GBP/JPY'];
         setInterval(() => {
             try {
                 let tf = parseInt(document.getElementById('tfType').value) || 60;
@@ -215,10 +192,17 @@
                 let remain = tf - (now.getSeconds() % tf);
                 document.getElementById('countdownBox').innerText = `⏱️ TF ${tf}s ➔ อีก ${remain} วินาที เปลี่ยนแท่ง`;
 
+                // อัปเดตข้อความเรดาร์สแกนให้เคลื่อนไหวตลอดเวลา
+                let randomAsset = assetList[Math.floor(Math.random() * assetList.length)];
+                let market = document.getElementById('marketType').value;
+                document.getElementById('radarText').innerText = `กำลังสแกน ${randomAsset} (${market}) - ความแม่นยำสูง...`;
+
                 let asset = document.getElementById('assetType').value;
-                let basePrice = asset.includes('JPY') ? 154.50 : 1.08250;
+                let basePrice = asset.includes('JPY') ? 154.50 : (asset.includes('AUD') ? 0.6550 : 1.08250);
                 let decimals = asset.includes('JPY') ? 3 : 5;
-                let price = (basePrice + (Math.random() * 0.0008 - 0.0004) + state.bias).toFixed(decimals);
+                
+                // คำนวณราคาพร้อมสุ่มขยับ + ค่า Bias
+                let price = (basePrice + (Math.random() * 0.0010 - 0.0005) + state.bias).toFixed(decimals);
                 document.getElementById('livePrice').innerText = price;
 
                 let btn = document.getElementById('mainSignalBtn');
@@ -231,12 +215,15 @@
                     
                     if (isWin) {
                         state.wins++;
-                        playSound('WIN');
                     } else {
                         state.losses++;
+                        state.bias = (Math.random() * 0.00006 - 0.00003); // อัปเดตค่า Bias ไม่ให้เป็น 0 นิ่ง
                     }
+                    
+                    document.getElementById('biasVal').innerText = state.bias.toFixed(5);
                     let total = state.wins + state.losses;
-                    document.getElementById('winRateVal').innerText = `${((state.wins/total)*100).toFixed(1)}%`;
+                    let winRate = ((state.wins/total)*100).toFixed(1);
+                    document.getElementById('winRateVal').innerText = `${winRate}%`;
                     document.getElementById('memoryText').innerText = `RECORDED (${total} Trades)`;
                     state.activeTrade = null;
                 }
