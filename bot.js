@@ -1,22 +1,21 @@
 const http = require('http');
 const https = require('https');
+const fs = require('fs');
 
 const TOKEN = '8839850954:AAGSlkoHu_BFtuM7Fzc5kPhFjRD1nhmtyZs'.trim();
-const CHAT_ID = '6451332748'.trim();
-
-// แทนที่ URL นี้ด้วย URL ของ Render ของคุณ (เช่น https://ai-trading-bot-hv5q.onrender.com)
 const WEBAPP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
 function sendMenuWithWebApp(chatId) {
     const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
     const payload = JSON.stringify({
         chat_id: chatId,
-        text: "🎛️ ยินดีต้อนรับสู่ระบบ AI Smart Signal Pro\n\nคลิกปุ่มด้านล่างเพื่อเปิดหน้าต่าง **Dashboard (Mini App)** แบบเต็มจอได้เลยครับ:",
+        text: "🧠 **AI SMART SIGNAL V10.9.9 PRO**\n\nระบบวิเคราะห์และจดจำข้อผิดพลาดพร้อมใช้งานแล้ว!\nกดปุ่มด้านล่างเพื่อเปิดหน้าต่าง **Dashboard (Mini App)** ได้เลยครับ:",
+        parse_mode: 'Markdown',
         reply_markup: {
             inline_keyboard: [
                 [
                     { 
-                        text: '🚀 เปิดหน้าต่าง AI Dashboard', 
+                        text: '🚀 เปิด AI Smart Signal Dashboard', 
                         web_app: { url: WEBAPP_URL } 
                     }
                 ]
@@ -35,13 +34,12 @@ function sendMenuWithWebApp(chatId) {
         }
     };
 
-    const req = https.request(options, (res) => {});
+    const req = https.request(options, () => {});
     req.on('error', () => {});
     req.write(payload);
     req.end();
 }
 
-// เช็คคำสั่ง /menu หรือ /start จากผู้ใช้
 function checkUpdates() {
     https.get(`https://api.telegram.org/bot${TOKEN}/getUpdates?offset=-1`, (res) => {
         let body = '';
@@ -54,7 +52,7 @@ function checkUpdates() {
                     if (up.message && up.message.text) {
                         const text = up.message.text;
                         const chatId = up.message.chat.id;
-                        if (text === '/start' || text === '/menu' || text === 'app') {
+                        if (text === '/start' || text === '/menu') {
                             sendMenuWithWebApp(chatId);
                         }
                     }
@@ -64,18 +62,15 @@ function checkUpdates() {
     }).on('error', ()=>{});
 }
 
-console.log("🤖 Telegram Mini App Bot Started...");
+console.log("🤖 AI Smart Signal Pro Server Engine Started...");
 setInterval(checkUpdates, 2000);
 
-// Web Server รองรับทั้งส่งไฟล์ HTML หน้าเว็บ และรันบอทพร้อมกัน
 const server = http.createServer((req, res) => {
     if (req.url === '/' || req.url === '/index.html') {
-        // อ่านไฟล์ index.html ที่คุณสร้างบน GitHub ส่งออกไปแสดงผลเป็น Mini App
-        const fs = require('fs');
         fs.readFile('./index.html', 'utf8', (err, data) => {
             if (err) {
                 res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('Error loading WebApp');
+                res.end('Error loading Dashboard');
             } else {
                 res.writeHead(200, { 'Content-Type': 'text/html' });
                 res.end(data);
@@ -83,7 +78,7 @@ const server = http.createServer((req, res) => {
         });
     } else {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('AI Mini App Server is Running 24/7\n');
+        res.end('AI Signal Engine Server Running\n');
     }
 });
 
