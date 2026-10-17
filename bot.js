@@ -7,7 +7,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Token ใหม่จาก BotFather (@Noghjklbot)
+// 🤖 Token ของบอทรุ่นล่าสุด
 const TELEGRAM_TOKEN = '8973009138:AAF4ESAr1PeFMIHAq4u8cb6VaUFSo5GaKys';
 
 // ใช้ Polling แบบมาตรฐาน เสถียรและตอบกลับทันที
@@ -64,7 +64,7 @@ let memoryStats = {
 
 async function getRealPrice(symbol = 'BTCUSDT') {
   try {
-    const res = await axios.get(`https://api.binance.com/api/3/ticker/price?symbol=${symbol}`);
+    const res = await axios.get(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
     return parseFloat(res.data.price);
   } catch (e) {
     return 1.08500;
