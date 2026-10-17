@@ -17,32 +17,41 @@
       --text-sub: #8a99ad;
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    html, body {
+      width: 100%;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
       background-color: var(--bg-color);
       color: var(--text-main);
-      margin: 0;
-      padding: 12px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-start;
       box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      padding: 12px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
 
     .header-bar {
-      width: 100%;
-      max-width: 400px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       font-size: 11px;
       color: var(--text-sub);
-      margin-bottom: 8px;
     }
 
     .main-card {
-      width: 100%;
-      max-width: 400px;
       background: var(--card-bg);
       border: 1px solid var(--border-color);
       border-radius: 16px;
@@ -118,7 +127,7 @@
 
     .select-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 6px;
       margin-bottom: 10px;
     }
@@ -127,15 +136,15 @@
       background: #0d131f;
       border: 1px solid var(--border-color);
       border-radius: 6px;
-      padding: 4px;
+      padding: 6px;
       text-align: center;
     }
 
     .select-box label {
       display: block;
-      font-size: 8px;
+      font-size: 9px;
       color: var(--text-sub);
-      margin-bottom: 2px;
+      margin-bottom: 3px;
     }
 
     .select-box select {
@@ -143,7 +152,7 @@
       background: transparent;
       border: none;
       color: var(--text-main);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 600;
       text-align: center;
       outline: none;
@@ -224,6 +233,7 @@
       text-align: center;
       box-sizing: border-box;
       box-shadow: 0 0 12px rgba(255, 153, 0, 0.2);
+      cursor: pointer;
     }
 
     .footer-tools {
@@ -237,109 +247,172 @@
     .btn-action {
       background: #0d131f;
       border: 1px solid var(--border-color);
-      padding: 4px 8px;
+      padding: 6px 10px;
       border-radius: 4px;
       color: var(--accent-green);
       font-size: 9px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <div class="header-bar">
-    <span>V 10 . 9 . 8 .Pro</span>
-  </div>
-
-  <div class="main-card">
-    <div class="title-section">
-      <h1>AI SMART SIGNAL</h1>
-      <p>V10.9.8 BIAS STATS DISPLAY ENGINE</p>
+  <div class="container">
+    <div class="header-bar">
+      <span>V 10 . 9 . 8 .Pro</span>
+      <span style="color: var(--accent-green);">● FULL SCREEN ACTIVE</span>
     </div>
 
-    <div class="status-badge">
-      <span style="color: var(--text-sub);">NET STATUS:</span>
-      <span><span class="dot"></span> <strong style="color: var(--accent-green);">ONLINE (REAL-TIME)</strong></span>
-    </div>
+    <div class="main-card">
+      <div class="title-section">
+        <h1>AI SMART SIGNAL</h1>
+        <p>V10.9.8 BIAS STATS DISPLAY ENGINE</p>
+      </div>
 
-    <div class="radar-box">
-      <div class="radar-title">🔥 AI MULTI-ASSET RADAR (TOP PICK)</div>
-      <div class="radar-value" id="radarText">EURJPY ➔ [CALL] (โมเมนตัมสูงสุด | CONF: 97.1%)</div>
-    </div>
+      <div class="status-badge">
+        <span style="color: var(--text-sub);">NET STATUS:</span>
+        <span><span class="dot"></span> <strong style="color: var(--accent-green);">ONLINE (REAL-TIME)</strong></span>
+      </div>
 
-    <div class="select-grid">
-      <div class="select-box">
-        <label>ประเภทตลาด</label>
-        <select><option>ตลาดจริง (M)</option></select>
+      <div class="radar-box">
+        <div class="radar-title">🔥 AI MULTI-ASSET RADAR (TOP PICK)</div>
+        <div class="radar-value" id="radarText">GBPJPY (OTC) ➔ [CALL] (CONF: 97.5%)</div>
       </div>
-      <div class="select-box">
-        <label>กรอบเวลา (TF)</label>
-        <select><option>1 นาที (60s)</option></select>
-      </div>
-      <div class="select-box">
-        <label>คู่สินทรัพย์</label>
-        <select id="pairSelect"><option>EUR/USD</option></select>
-      </div>
-    </div>
 
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-title">LIVE PRICE</div>
-        <div class="stat-value" id="livePrice">1.12355</div>
+      <div class="select-grid">
+        <div class="select-box">
+          <label>ประเภทตลาด</label>
+          <select id="marketType">
+            <option>ตลาดจริง (Market)</option>
+            <option selected>ตลาด OTC</option>
+          </select>
+        </div>
+        <div class="select-box">
+          <label>เลือกคู่สินทรัพย์</label>
+          <select id="pairSelect">
+            <option>AUD/USD</option>
+            <option>EUR/USD</option>
+            <option>EUR/GBP</option>
+            <option>GBP/JPY</option>
+            <option>EUR/JPY</option>
+            <option selected>GBP/USD</option>
+          </select>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-title">AI STRATEGY SCORE</div>
-        <div class="stat-value" style="color: #00a8ff;">NEUTRAL</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-title">WIN RATE (PERSISTENT)</div>
-        <div class="stat-value">30.0%<br><span style="font-size: 8px; color: var(--text-sub);">(3W/7L)</span></div>
-      </div>
-    </div>
 
-    <div class="bias-grid">
-      <div class="bias-card">
-        <div class="bias-title">🧠 AI CORRECTION BIAS (แก้เกม)</div>
-        <div class="bias-value" style="color: #ff4d4d;">-0.00005</div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-title">LIVE PRICE</div>
+          <div class="stat-value" id="livePrice">1.12355</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">AI SCORE</div>
+          <div class="stat-value" style="color: #00a8ff;">STRONG BUY</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">WIN RATE</div>
+          <div class="stat-value">84.2%<br><span style="font-size: 8px; color: var(--text-sub);">(16W/3L)</span></div>
+        </div>
       </div>
-      <div class="bias-card">
-        <div class="bias-title">💾 PERSISTENT MEMORY STATUS</div>
-        <div class="bias-value" style="color: var(--accent-blue);">RECORDED (10 Trades)</div>
+
+      <div class="bias-grid">
+        <div class="bias-card">
+          <div class="bias-title">🧠 AI CORRECTION BIAS</div>
+          <div class="bias-value" style="color: #00ffcc;">+0.00012</div>
+        </div>
+        <div class="bias-card">
+          <div class="bias-title">💾 PERSISTENT MEMORY</div>
+          <div class="bias-value" style="color: var(--accent-blue);">SAVED (247 Trades)</div>
+        </div>
       </div>
-    </div>
 
-    <div class="timer-box">
-      ⏱️ TF 60s ➔ อีก <span id="countdown">56</span> วิ เปลี่ยนแท่ง
-    </div>
+      <div class="timer-box">
+        ⏱️ TF 60s ➔ อีก <span id="countdown">56</span> วิ เปลี่ยนแท่ง
+      </div>
 
-    <div class="btn-preparing" id="actionBtn">
-      PREPARING...
-    </div>
+      <div class="btn-preparing" id="actionBtn" onclick="testBeep()">
+        SIGNAL READY
+      </div>
 
-    <div class="footer-tools">
-      <button class="btn-action">🔊 AUDIO: ON</button>
-      <button class="btn-action" style="color: #ff4d4d;">RESET</button>
-      <span style="color: var(--accent-blue);">CONF: -- %</span>
-      <span style="color: var(--text-sub);">🧠 AI Master ประมวลผล...</span>
+      <div class="footer-tools">
+        <button class="btn-action" onclick="toggleAudio()">🔊 AUDIO: ON</button>
+        <button class="btn-action" style="color: #ff4d4d;" onclick="location.reload()">RESET</button>
+        <span style="color: var(--accent-blue);">CONF: 96.4%</span>
+        <span style="color: var(--text-sub);">AI Active 24/7</span>
+      </div>
     </div>
   </div>
 
   <script>
+    // ขยายเต็มหน้าจอ Telegram Mini App อัตโนมัติ
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
-    // สุ่มตัวเลขอัปเดตสมจริง
-    setInterval(() => {
-      const price = (1.12300 + Math.random() * 0.00100).toFixed(5);
-      document.getElementById('livePrice').innerText = price;
-    }, 1500);
+    let audioEnabled = true;
 
-    // ตัวนับถอยหลัง
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      alert(audioEnabled ? "เปิดเสียงแจ้งเตือนแล้ว" : "ปิดเสียงแจ้งเตือนแล้ว");
+    }
+
+    // ฟังก์ชันสร้างเสียงแจ้งเตือน "ติ๊ด" 4 ครั้ง (ใช้ Web Audio API โดยไม่ต้องโหลดไฟล์เสียงภายนอก)
+    function playBeep4Times() {
+      if (!audioEnabled) return;
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        let beepCount = 0;
+        const interval = setInterval(() => {
+          if (beepCount >= 4) {
+            clearInterval(interval);
+            return;
+          }
+          
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, audioCtx.currentTime); // เสียงโน้ตสูงชัดเจน
+          
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.15);
+          
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.15);
+          
+          beepCount++;
+        }, 200); // เว้นระยะห่างแต่ละติ๊ด 200 มิลลิวินาที
+      } catch (e) {
+        console.log("Audio not supported or blocked", e);
+      }
+    }
+
+    // ปุ่มทดสอบเสียงเมื่อกดที่ปุ่ม SIGNAL READY
+    function testBeep() {
+      playBeep4Times();
+      alert("🔊 ทดสอบเสียงแจ้งเตือน (ติ๊ด 4 ครั้ง)");
+    }
+
+    // สุ่มราคาวิ่งสมจริง
+    setInterval(() => {
+      const price = (1.12000 + Math.random() * 0.00300).toFixed(5);
+      document.getElementById('livePrice').innerText = price;
+    }, 1200);
+
+    // ตัวนับถอยหลังวิ
     let time = 56;
     setInterval(() => {
       time--;
-      if(time < 0) time = 59;
+      if(time < 0) {
+        time = 59;
+        // เมื่อเปลี่ยนแท่งใหม่ มีโอกาสสุ่มเล่นเสียงเตือนติ๊ด 4 ครั้งจำลองสถานการณ์สัญญาณเข้า
+        playBeep4Times();
+      }
       document.getElementById('countdown').innerText = time;
     }, 1000);
   </script>
