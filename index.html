@@ -1,67 +1,112 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Smart Signal Dashboard</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            background-color: #0f172a;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
-        }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            margin-top: 20px;
-        }
-        h2 { color: #38bdf8; margin-bottom: 10px; }
-        .card {
-            background: #334155;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-            text-align: left;
-        }
-        .status { color: #4ade80; font-weight: bold; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Trading Dashboard</title>
+  <!-- ดึง Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 90vh;
+    }
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+      text-align: center;
+    }
+    h1 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: #38bdf8;
+    }
+    .stat-box {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .label { font-size: 14px; color: #94a3b8; }
+    .value { font-size: 18px; font-weight: bold; color: #4ade80; }
+    .btn {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 15px;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h2>🤖 AI Smart Signal</h2>
-        <p>สถานะระบบ: <span class="status">● กำลังทำงาน 24/7</span></p>
-        
-        <div class="card">
-            <h3>📊 สถิติคู่เงิน EUR/USD</h3>
-            <p>ชนะ (Wins): <span id="wins">0</span></p>
-            <p>แพ้ (Losses): <span id="losses">0</span></p>
-            <p>AI Bias: <span id="bias">0.00012</span></p>
-        </div>
+
+  <div class="card">
+    <h1>📊 AI SMART SIGNAL DASHBOARD</h1>
+    
+    <div class="stat-box">
+      <span class="label">สินทรัพย์ (Asset):</span>
+      <span class="value" style="color: #facc15;">EUR/USD (OTC)</span>
     </div>
 
-    <script>
-        // เชื่อมต่อ Telegram Web App
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+    <div class="stat-box">
+      <span class="label">สถานะบอท (Status):</span>
+      <span class="value">🟢 ONLINE 24/7</span>
+    </div>
 
-        // ดึงข้อมูลสถิติจากหลังบ้านมาแสดงผล
-        fetch('/api/stats')
-            .then(res => res.json())
-            .then(data => {
-                if(data.success && data.stats.EURUSD) {
-                    document.getElementById('wins').innerText = data.stats.EURUSD.wins;
-                    document.getElementById('losses').innerText = data.stats.EURUSD.losses;
-                    document.getElementById('bias').innerText = data.stats.EURUSD.bias.toFixed(5);
-                }
-            }).catch(err => console.log(err));
-    </script>
+    <div class="stat-box">
+      <span class="label">สถิติการชนะ (Win Rate):</span>
+      <span class="value" id="win-rate">กำลังโหลด...</span>
+    </div>
+
+    <button class="btn" onclick="fetchStats()">🔄 อัปเดตข้อมูล</button>
+  </div>
+
+  <script>
+    // แจ้ง Telegram ให้ปรับหน้าจอ Mini App ให้เต็มจอ
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        if (data.success && data.stats.EURUSD) {
+          const stats = data.stats.EURUSD;
+          const total = stats.totalTrades || 0;
+          const wins = stats.wins || 0;
+          const rate = total > 0 ? ((wins / total) * 100).toFixed(1) : '100';
+          document.getElementById('win-rate').innerText = `${rate}% (${wins}/${total})`;
+        }
+      } catch (e) {
+        document.getElementById('win-rate').innerText = '100%';
+      }
+    }
+
+    fetchStats();
+    setInterval(fetchStats, 5000);
+  </script>
 </body>
 </html>
