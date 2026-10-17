@@ -9,7 +9,8 @@ const PORT = process.env.PORT || 3000;
 
 // 🤖 Telegram Bot Token
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8839850954:AAGSlkoHu_BFtuM7Fzc5kPhFjRD1nhmtyZs';
-const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+// ปิด polling เพื่อไม่ให้เกิด Error 409 Conflict ซ้ำซ้อน
+const bot = new TelegramBot(TELEGRAM_TOKEN);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -17,12 +18,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // URL ของ Mini App บน Render ของคุณ
 const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
-// คำสั่ง /start จะแสดงเฉพาะปุ่มเปิด Mini App เท่านั้น ไม่มีข้อความรกแชท
+// คำสั่ง /start จะส่งข้อความพร้อมปุ่มเปิด Mini App ให้ผู้ใช้กด
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   
   bot.sendMessage(chatId, 
-    `🤖 *AI SMART SIGNAL DASHBOARD*`,
+    `🤖 *AI SMART SIGNAL DASHBOARD*\n\n` +
+    `กดปุ่มด้านล่างเพื่อเปิดหน้าจอ Mini App ดูสถิติและผลการทำงานแบบเรียลไทม์ครับ`,
     { 
       parse_mode: 'Markdown',
       reply_markup: {
@@ -31,7 +33,7 @@ bot.onText(/\/start/, (msg) => {
         ]
       }
     }
-  );
+  ).catch(() => {});
 });
 
 // ------------------------------------------------------------------
@@ -91,7 +93,7 @@ setInterval(async () => {
     activeTrades.push(newTrade);
   }
 
-  // วินาทีที่ 00: ตรวจผลและอัปเดตสถิติลง DB เงียบๆ ไม่ยิงข้อความเข้าแชท
+  // วินาทีที่ 00: ตรวจผลและอัปเดตสถิติลง DB เงียบๆ ไม่รบกวนห้องแชท
   if (seconds === 0 && activeTrades.length > 0) {
     const currentPrice = await getRealPrice('BTCUSDT');
     
@@ -138,5 +140,5 @@ setInterval(() => {
 }, 4 * 60 * 1000);
 
 app.listen(PORT, () => {
-  console.log(`🚀 AI Signal 24/7 Engine Running (Silent Mode + Mini App)`);
+  console.log(`🚀 AI Signal 24/7 Engine Running (Clean Silent Mode + Mini App)`);
 });
