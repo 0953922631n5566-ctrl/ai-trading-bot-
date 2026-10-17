@@ -1,426 +1,67 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>AI SMART SIGNAL V10.9.8.Pro - Self Learning DB</title>
-  <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-  <style>
-    :root {
-      --bg-color: #06090e;
-      --card-bg: #0d131f;
-      --border-color: #1a2332;
-      --accent-green: #00ffcc;
-      --accent-red: #ff3366;
-      --accent-orange: #ff9900;
-      --accent-blue: #00a8ff;
-      --text-main: #ffffff;
-      --text-sub: #8a99ad;
-    }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body {
-      width: 100vw; height: 100vh; margin: 0; padding: 0;
-      background-color: var(--bg-color); color: var(--text-main);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      overflow-x: hidden;
-    }
-    .app-container {
-      width: 100%; min-height: 100vh; padding: 14px;
-      display: flex; flex-direction: column; justify-content: space-between;
-    }
-    .header-bar {
-      display: flex; justify-content: space-between; align-items: center;
-      font-size: 11px; color: var(--text-sub); padding: 2px 0;
-    }
-    .main-card {
-      background: var(--card-bg); border: 1px solid var(--border-color);
-      border-radius: 20px; padding: 18px; display: flex; flex-direction: column;
-      gap: 14px; box-shadow: 0 12px 35px rgba(0,0,0,0.85);
-    }
-    .title-section { text-align: center; }
-    .title-section h1 {
-      font-size: 22px; font-weight: 900; letter-spacing: 2px; margin: 0;
-      background: linear-gradient(90deg, #fff, #00a8ff);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .title-section p {
-      font-size: 9.5px; color: var(--accent-green); letter-spacing: 0.8px; margin: 4px 0 0 0; font-weight: 700;
-    }
-    .status-badge {
-      background: rgba(0, 255, 204, 0.05); border: 1px solid rgba(0, 255, 204, 0.25);
-      border-radius: 10px; padding: 8px 14px; display: flex; justify-content: space-between; align-items: center; font-size: 11px;
-    }
-    .dot {
-      height: 8px; width: 8px; background-color: var(--accent-green);
-      border-radius: 50%; display: inline-block; box-shadow: 0 0 10px var(--accent-green);
-    }
-    .radar-box {
-      background: rgba(0, 168, 255, 0.1); border: 1.5px solid rgba(0, 168, 255, 0.4);
-      border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s ease;
-    }
-    .radar-box:active { transform: scale(0.98); background: rgba(0, 168, 255, 0.2); }
-    .radar-title { color: var(--accent-blue); font-weight: 700; font-size: 10.5px; }
-    .radar-value { color: var(--accent-green); font-weight: 800; font-size: 14px; margin-top: 3px; }
-    .select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .select-box {
-      background: #06090e; border: 1px solid var(--border-color); border-radius: 10px; padding: 8px 10px; text-align: center;
-    }
-    .select-box label { display: block; font-size: 9px; color: var(--text-sub); margin-bottom: 4px; }
-    .select-box select {
-      width: 100%; background: transparent; border: none; color: var(--text-main);
-      font-size: 12px; font-weight: 700; outline: none; text-align-last: center;
-    }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .stat-card { background: #06090e; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px 4px; text-align: center; }
-    .stat-title { font-size: 8.5px; color: var(--text-sub); font-weight: 700; margin-bottom: 4px; }
-    .stat-value { font-size: 12.5px; font-weight: 800; color: var(--accent-blue); }
-    .bias-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .bias-card { background: #06090e; border: 1px solid var(--border-color); border-radius: 10px; padding: 10px; text-align: center; }
-    .timer-box { text-align: center; font-size: 13px; color: var(--accent-orange); font-weight: 800; }
-    .btn-signal {
-      width: 100%; padding: 22px 10px; background: rgba(255, 153, 0, 0.05);
-      border: 2px solid var(--accent-orange); border-radius: 16px; color: var(--accent-orange);
-      font-size: 24px; font-weight: 900; letter-spacing: 2px; text-align: center;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-    .btn-signal.call {
-      background: rgba(0, 255, 204, 0.18) !important; border-color: var(--accent-green) !important;
-      color: var(--accent-green) !important; box-shadow: 0 0 35px rgba(0, 255, 204, 0.5); animation: pulse-green 0.8s infinite;
-    }
-    .btn-signal.put {
-      background: rgba(255, 51, 102, 0.18) !important; border-color: var(--accent-red) !important;
-      color: var(--accent-red) !important; box-shadow: 0 0 35px rgba(255, 51, 102, 0.5); animation: pulse-red 0.8s infinite;
-    }
-    @keyframes pulse-green {
-      0% { box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); transform: scale(1); }
-      50% { box-shadow: 0 0 35px rgba(0, 255, 204, 0.7); transform: scale(1.02); }
-      100% { box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); transform: scale(1); }
-    }
-    @keyframes pulse-red {
-      0% { box-shadow: 0 0 15px rgba(255, 51, 102, 0.3); transform: scale(1); }
-      50% { box-shadow: 0 0 35px rgba(255, 51, 102, 0.7); transform: scale(1.02); }
-      100% { box-shadow: 0 0 15px rgba(255, 51, 102, 0.3); transform: scale(1); }
-    }
-    .footer-tools { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; }
-    .btn-action {
-      background: #06090e; border: 1px solid var(--border-color); padding: 8px 14px;
-      border-radius: 8px; color: var(--accent-green); font-size: 10.5px; font-weight: 700; cursor: pointer;
-    }
-    #radarModal {
-      display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(6, 9, 14, 0.9); z-index: 999; justify-content: center; align-items: center; padding: 20px;
-    }
-    .modal-content {
-      background: var(--card-bg); border: 1px solid var(--accent-blue); border-radius: 16px;
-      width: 100%; max-width: 400px; padding: 20px; box-sizing: border-box; max-height: 80vh; overflow-y: auto;
-    }
-    .radar-item {
-      display: flex; justify-content: space-between; padding: 10px; margin-bottom: 8px;
-      background: #06090e; border-radius: 8px; border: 1px solid var(--border-color); font-size: 12px; font-weight: 700;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Signal Dashboard</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin-top: 20px;
+        }
+        h2 { color: #38bdf8; margin-bottom: 10px; }
+        .card {
+            background: #334155;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: left;
+        }
+        .status { color: #4ade80; font-weight: bold; }
+    </style>
 </head>
 <body>
-
-  <div class="app-container">
-    <div class="header-bar">
-      <span>V 10 . 9 . 8 .Pro</span>
-      <span style="color: var(--accent-green);" id="dbStatus">● DB ACTIVE (SELF-LEARNING)</span>
-    </div>
-
-    <div class="main-card">
-      <div class="title-section">
-        <h1>AI SMART SIGNAL</h1>
-        <p>V10.9.8 SELF-LEARNING DB ENGINE</p>
-      </div>
-
-      <div class="status-badge">
-        <span style="color: var(--text-sub);">NET STATUS:</span>
-        <span><span class="dot"></span> <strong style="color: var(--accent-green);">ONLINE (REAL-TIME API)</strong></span>
-      </div>
-
-      <div class="radar-box" onclick="openRadarModal()">
-        <div class="radar-title">🔥 AI MULTI-ASSET RADAR (กดเพื่อดูสถานะทุกคู่)</div>
-        <div class="radar-value" id="radarText">EUR/USD ➔ [SCANNING...]</div>
-      </div>
-
-      <div class="select-grid">
-        <div class="select-box">
-          <label>ประเภทตลาด</label>
-          <select id="marketType">
-            <option>ตลาดจริง (Market)</option>
-            <option selected>ตลาด OTC</option>
-          </select>
-        </div>
-        <div class="select-box">
-          <label>เลือกคู่สินทรัพย์</label>
-          <select id="pairSelect" onchange="loadPairStats()">
-            <option value="BTCUSDT">BTC/USDT</option>
-            <option value="EURUSD" selected>EUR/USD</option>
-            <option value="GBPUSD">GBP/USD</option>
-            <option value="GBPJPY">GBP/JPY</option>
-            <option value="EURJPY">EUR/JPY</option>
-            <option value="AUDUSD">AUD/USD</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-title">LIVE PRICE</div>
-          <div class="stat-value" id="livePrice">1.08520</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-title">AI SCORE</div>
-          <div class="stat-value" id="aiScore" style="color: #00a8ff;">ANALYZING</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-title">WIN RATE (DB)</div>
-          <div class="stat-value" id="winRateText">88.5%<br><span style="font-size: 8px; color: var(--text-sub);" id="wlText">(0W/0L)</span></div>
-        </div>
-      </div>
-
-      <div class="bias-grid">
-        <div class="bias-card">
-          <div style="font-size: 8.5px; color: var(--text-sub);">🧠 AI CORRECTION BIAS</div>
-          <div style="font-size: 11.5px; font-weight: 700; color: #00ffcc;" id="biasVal">+0.00012</div>
-        </div>
-        <div class="bias-card">
-          <div style="font-size: 8.5px; color: var(--text-sub);">💾 PERSISTENT MEMORY</div>
-          <div style="font-size: 11.5px; font-weight: 700; color: var(--accent-blue);" id="totalTradesText">SAVED (0 Trades)</div>
-        </div>
-      </div>
-
-      <div class="timer-box">
-        ⏱️ TF 60s ➔ อีก <span id="countdown">59</span> วิ เปลี่ยนแท่ง
-      </div>
-
-      <div class="btn-signal" id="signalBtn">
-        PREPARING...
-      </div>
-
-      <div class="footer-tools">
-        <button class="btn-action" id="audioBtn" onclick="testBeep()">✈️ AIRPLANE CHIME</button>
-        <button class="btn-action" style="color: #ff3366;" onclick="location.reload()">RESET</button>
-        <span style="color: var(--accent-blue);" id="confText">CONF: -- %</span>
-      </div>
-    </div>
-
-    <div style="text-align: center; font-size: 9.5px; color: var(--text-sub); margin-top: 6px;">
-      🤖 AI Signal Engine Running 24/7 Real-Time Data & Self-Learning DB
-    </div>
-  </div>
-
-  <div id="radarModal" onclick="closeRadarModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-      <h3 style="color: var(--accent-blue); text-align: center; margin-top: 0; font-size: 15px;">📊 AI MULTI-ASSET RADAR STATUS</h3>
-      <div id="radarListContainer"></div>
-      <button onclick="closeRadarModal()" style="width: 100%; margin-top: 12px; padding: 10px; background: var(--accent-blue); border: none; border-radius: 8px; color: #fff; font-weight: 800; cursor: pointer;">ปิดหน้าต่าง</button>
-    </div>
-  </div>
-
-  <script>
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
-    }
-
-    let audioCtx = null;
-    function initAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-    }
-
-    function testBeep() {
-      initAudio();
-      playAirplaneChime();
-    }
-
-    function playAirplaneChime() {
-      initAudio();
-      if (!audioCtx) return;
-      const now = audioCtx.currentTime;
-
-      const osc1 = audioCtx.createOscillator();
-      const gain1 = audioCtx.createGain();
-      osc1.type = 'sine';
-      osc1.frequency.setValueAtTime(587.33, now);
-      gain1.gain.setValueAtTime(0, now);
-      gain1.gain.linearRampToValueAtTime(0.4, now + 0.02);
-      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
-      osc1.connect(gain1);
-      gain1.connect(audioCtx.destination);
-      osc1.start(now);
-      osc1.stop(now + 0.8);
-
-      const osc2 = audioCtx.createOscillator();
-      const gain2 = audioCtx.createGain();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(440.00, now + 0.35);
-      gain2.gain.setValueAtTime(0, now + 0.35);
-      gain2.gain.linearRampToValueAtTime(0.4, now + 0.37);
-      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
-      osc2.connect(gain2);
-      gain2.connect(audioCtx.destination);
-      osc2.start(now + 0.35);
-      osc2.stop(now + 1.2);
-    }
-
-    // 💾 ระบบ Local Storage เก็บบันทึกสถิติผลการเทรดจริง (Win/Loss & AI Bias)
-    let statsData = JSON.parse(localStorage.getItem('ai_trade_stats')) || {
-      wins: 0, losses: 0, bias: 0.00012, totalTrades: 0
-    };
-
-    function saveStats() {
-      localStorage.setItem('ai_trade_stats', JSON.stringify(statsData));
-      updateUIStats();
-    }
-
-    function updateUIStats() {
-      const total = statsData.wins + statsData.losses;
-      const winRate = total > 0 ? ((statsData.wins / total) * 100).toFixed(1) : "88.5";
-      document.getElementById('winRateText').innerHTML = `${winRate}%<br><span style="font-size: 8px; color: var(--text-sub);>(${statsData.wins}W/${statsData.losses}L)</span>`;
-      document.getElementById('wlText').innerText = `(${statsData.wins}W/${statsData.losses}L)`;
-      document.getElementById('biasVal').innerText = (statsData.bias >= 0 ? '+' : '') + statsData.bias.toFixed(5);
-      document.getElementById('totalTradesText').innerText = `SAVED (${statsData.totalTrades} Trades)`;
-    }
-
-    function loadPairStats() {
-      updateUIStats();
-    }
-
-    async function fetchRealPrice() {
-      try {
-        const res = await fetch('https://api.binance.com/api/3/ticker/price?symbol=BTCUSDT');
-        const data = await res.json();
-        const basePrice = parseFloat(data.price);
-        const pair = document.getElementById('pairSelect').value;
+    <div class="container">
+        <h2>🤖 AI Smart Signal</h2>
+        <p>สถานะระบบ: <span class="status">● กำลังทำงาน 24/7</span></p>
         
-        let displayPrice = (basePrice / 60000 * 1.0850).toFixed(5);
-        if (pair === 'BTCUSDT') displayPrice = basePrice.toFixed(2);
-        
-        document.getElementById('livePrice').innerText = displayPrice;
-        return parseFloat(displayPrice);
-      } catch (e) {
-        const mock = (1.08200 + Math.random() * 0.00300).toFixed(5);
-        document.getElementById('livePrice').innerText = mock;
-        return parseFloat(mock);
-      }
-    }
-    setInterval(fetchRealPrice, 1000);
+        <div class="card">
+            <h3>📊 สถิติคู่เงิน EUR/USD</h3>
+            <p>ชนะ (Wins): <span id="wins">0</span></p>
+            <p>แพ้ (Losses): <span id="losses">0</span></p>
+            <p>AI Bias: <span id="bias">0.00012</span></p>
+        </div>
+    </div>
 
-    const radarPairsList = ['EUR/USD (OTC)', 'GBP/USD (OTC)', 'GBP/JPY (OTC)', 'EUR/JPY (OTC)', 'AUD/USD (OTC)', 'EUR/GBP (OTC)'];
-    let currentRadarData = [];
+    <script>
+        // เชื่อมต่อ Telegram Web App
+        let tg = window.Telegram.WebApp;
+        tg.expand();
 
-    function updateRadarList() {
-      currentRadarData = radarPairsList.map(pair => {
-        const isCall = Math.random() > 0.5;
-        const conf = (91.0 + Math.random() * 8.0).toFixed(1);
-        return { pair, signal: isCall ? 'CALL' : 'PUT', conf };
-      });
-
-      const topPick = currentRadarData[0];
-      const radarText = document.getElementById('radarText');
-      radarText.innerHTML = `${topPick.pair} ➔ [${topPick.signal}] (CONF: ${topPick.conf}%)`;
-      radarText.style.color = topPick.signal === 'CALL' ? 'var(--accent-green)' : 'var(--accent-red)';
-    }
-
-    function openRadarModal() {
-      updateRadarList();
-      const container = document.getElementById('radarListContainer');
-      container.innerHTML = '';
-
-      currentRadarData.forEach(item => {
-        const color = item.signal === 'CALL' ? 'var(--accent-green)' : 'var(--accent-red)';
-        container.innerHTML += `
-          <div class="radar-item">
-            <span>${item.pair}</span>
-            <span style="color: ${color}; font-weight: 900;">${item.signal} (CONF: ${item.conf}%)</span>
-          </div>
-        `;
-      });
-
-      document.getElementById('radarModal').style.display = 'flex';
-    }
-
-    function closeRadarModal() {
-      document.getElementById('radarModal').style.display = 'none';
-    }
-
-    let time = 59;
-    let entryPrice = 0;
-    let currentSignal = null;
-    const signalBtn = document.getElementById('signalBtn');
-    const confText = document.getElementById('confText');
-
-    setInterval(async () => {
-      time--;
-
-      // 🔥 ส่งสัญญาณล่วงหน้า 2 วินาทีสุดท้ายก่อนจบแท่ง
-      if (time === 2) {
-        initAudio();
-        currentSignal = Math.random() > 0.5 ? 'CALL' : 'PUT';
-        entryPrice = await fetchRealPrice();
-        const conf = (92.0 + Math.random() * 7.5).toFixed(1);
-
-        if (currentSignal === 'CALL') {
-          signalBtn.className = 'btn-signal call';
-          signalBtn.innerHTML = '🟢 CALL (ซื้อขึ้น)';
-          document.getElementById('aiScore').innerText = 'STRONG BUY';
-          document.getElementById('aiScore').style.color = '#00ffcc';
-        } else {
-          signalBtn.className = 'btn-signal put';
-          signalBtn.innerHTML = '🔴 PUT (ซื้อลง)';
-          document.getElementById('aiScore').innerText = 'STRONG SELL';
-          document.getElementById('aiScore').style.color = '#ff3366';
-        }
-
-        confText.innerText = `CONF: ${conf}%`;
-        updateRadarList();
-        playAirplaneChime();
-      }
-
-      // 🏁 เมื่อจบแท่ง (0 วินาที) ตรวจเช็กราคาปิดแท่งจริง เพื่อบันทึกผล Win/Loss ลง DB
-      if (time <= 0) {
-        if (entryPrice > 0 && currentSignal) {
-          const closePrice = await fetchRealPrice();
-          let isWin = false;
-
-          if (currentSignal === 'CALL' && closePrice > entryPrice) isWin = true;
-          if (currentSignal === 'PUT' && closePrice < entryPrice) isWin = true;
-
-          statsData.totalTrades++;
-          if (isWin) {
-            statsData.wins++;
-            statsData.bias += 0.00005; // ชนะปรับ Bias เพิ่ม
-          } else {
-            statsData.losses++;
-            statsData.bias -= 0.00008; // แพ้ปรับ Bias ลดลงทันทีเพื่อเรียนรู้
-          }
-          saveStats();
-        }
-        time = 59;
-      }
-
-      if (time === 49) {
-        signalBtn.className = 'btn-signal';
-        signalBtn.innerHTML = 'PREPARING...';
-        document.getElementById('aiScore').innerText = 'ANALYZING';
-        document.getElementById('aiScore').style.color = '#00a8ff';
-      }
-
-      document.getElementById('countdown').innerText = time;
-    }, 1000);
-
-    document.body.addEventListener('click', initAudio, { once: true });
-    updateUIStats();
-  </script>
+        // ดึงข้อมูลสถิติจากหลังบ้านมาแสดงผล
+        fetch('/api/stats')
+            .then(res => res.json())
+            .then(data => {
+                if(data.success && data.stats.EURUSD) {
+                    document.getElementById('wins').innerText = data.stats.EURUSD.wins;
+                    document.getElementById('losses').innerText = data.stats.EURUSD.losses;
+                    document.getElementById('bias').innerText = data.stats.EURUSD.bias.toFixed(5);
+                }
+            }).catch(err => console.log(err));
+    </script>
 </body>
 </html>
