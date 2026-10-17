@@ -37,10 +37,11 @@
     .app-container {
       width: 100%;
       min-height: 100vh;
-      padding: 12px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      box-sizing: border-box;
     }
 
     .header-bar {
@@ -49,18 +50,18 @@
       align-items: center;
       font-size: 11px;
       color: var(--text-sub);
-      padding: 4px 0;
+      padding: 2px 0;
     }
 
     .main-card {
       background: var(--card-bg);
       border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 16px;
+      border-radius: 20px;
+      padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      gap: 14px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.85);
     }
 
     .title-section {
@@ -68,9 +69,9 @@
     }
 
     .title-section h1 {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 900;
-      letter-spacing: 1.5px;
+      letter-spacing: 2px;
       margin: 0;
       background: linear-gradient(90deg, #fff, #00a8ff);
       -webkit-background-clip: text;
@@ -78,18 +79,18 @@
     }
 
     .title-section p {
-      font-size: 9px;
+      font-size: 9.5px;
       color: var(--accent-green);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       margin: 4px 0 0 0;
       font-weight: 700;
     }
 
     .status-badge {
       background: rgba(0, 255, 204, 0.05);
-      border: 1px solid rgba(0, 255, 204, 0.2);
-      border-radius: 8px;
-      padding: 8px 12px;
+      border: 1px solid rgba(0, 255, 204, 0.25);
+      border-radius: 10px;
+      padding: 8px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -107,36 +108,36 @@
 
     .radar-box {
       background: rgba(0, 168, 255, 0.08);
-      border: 1px solid rgba(0, 168, 255, 0.25);
-      border-radius: 10px;
-      padding: 10px;
+      border: 1px solid rgba(0, 168, 255, 0.3);
+      border-radius: 12px;
+      padding: 12px;
       text-align: center;
     }
 
     .radar-title {
       color: var(--accent-blue);
       font-weight: 700;
-      font-size: 10px;
+      font-size: 10.5px;
     }
 
     .radar-value {
       color: var(--accent-green);
       font-weight: 800;
-      font-size: 13px;
-      margin-top: 2px;
+      font-size: 14px;
+      margin-top: 3px;
     }
 
     .select-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 10px;
     }
 
     .select-box {
       background: #06090e;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 6px 8px;
+      border-radius: 10px;
+      padding: 8px 10px;
       text-align: center;
     }
 
@@ -144,7 +145,7 @@
       display: block;
       font-size: 9px;
       color: var(--text-sub);
-      margin-bottom: 2px;
+      margin-bottom: 4px;
     }
 
     .select-box select {
@@ -152,7 +153,7 @@
       background: transparent;
       border: none;
       color: var(--text-main);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       outline: none;
       text-align-last: center;
@@ -161,26 +162,26 @@
     .stats-grid {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 6px;
+      gap: 8px;
     }
 
     .stat-card {
       background: #06090e;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 8px 4px;
+      border-radius: 10px;
+      padding: 10px 4px;
       text-align: center;
     }
 
     .stat-title {
-      font-size: 8px;
+      font-size: 8.5px;
       color: var(--text-sub);
       font-weight: 700;
       margin-bottom: 4px;
     }
 
     .stat-value {
-      font-size: 12px;
+      font-size: 12.5px;
       font-weight: 800;
       color: var(--accent-blue);
     }
@@ -188,82 +189,83 @@
     .bias-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 8px;
+      gap: 10px;
     }
 
     .bias-card {
       background: #06090e;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 8px;
+      border-radius: 10px;
+      padding: 10px;
       text-align: center;
     }
 
     .timer-box {
       text-align: center;
-      font-size: 12px;
+      font-size: 13px;
       color: var(--accent-orange);
       font-weight: 800;
     }
 
-    /* ปุ่มสัญญาณไฟเปลี่ยนสีตามเรียลไทม์ */
+    /* 🔥 ช่องสัญญาณไฟขนาดใหญ่ ดีไซน์สวยงามอลังการ */
     .btn-signal {
       width: 100%;
-      padding: 16px;
+      padding: 22px 10px;
       background: rgba(255, 153, 0, 0.05);
       border: 2px solid var(--accent-orange);
-      border-radius: 12px;
+      border-radius: 16px;
       color: var(--accent-orange);
-      font-size: 20px;
+      font-size: 24px;
       font-weight: 900;
       letter-spacing: 2px;
       text-align: center;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     }
 
     .btn-signal.call {
-      background: rgba(0, 255, 204, 0.15) !important;
+      background: rgba(0, 255, 204, 0.18) !important;
       border-color: var(--accent-green) !important;
       color: var(--accent-green) !important;
-      box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);
-      animation: pulse-green 1s infinite;
+      box-shadow: 0 0 35px rgba(0, 255, 204, 0.5);
+      animation: pulse-green 0.8s infinite;
     }
 
     .btn-signal.put {
-      background: rgba(255, 51, 102, 0.15) !important;
+      background: rgba(255, 51, 102, 0.18) !important;
       border-color: var(--accent-red) !important;
       color: var(--accent-red) !important;
-      box-shadow: 0 0 25px rgba(255, 51, 102, 0.4);
-      animation: pulse-red 1s infinite;
+      box-shadow: 0 0 35px rgba(255, 51, 102, 0.5);
+      animation: pulse-red 0.8s infinite;
     }
 
     @keyframes pulse-green {
-      0% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.2); }
-      50% { box-shadow: 0 0 25px rgba(0, 255, 204, 0.6); }
-      100% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.2); }
+      0% { box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); transform: scale(1); }
+      50% { box-shadow: 0 0 35px rgba(0, 255, 204, 0.7); transform: scale(1.02); }
+      100% { box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); transform: scale(1); }
     }
 
     @keyframes pulse-red {
-      0% { box-shadow: 0 0 10px rgba(255, 51, 102, 0.2); }
-      50% { box-shadow: 0 0 25px rgba(255, 51, 102, 0.6); }
-      100% { box-shadow: 0 0 10px rgba(255, 51, 102, 0.2); }
+      0% { box-shadow: 0 0 15px rgba(255, 51, 102, 0.3); transform: scale(1); }
+      50% { box-shadow: 0 0 35px rgba(255, 51, 102, 0.7); transform: scale(1.02); }
+      100% { box-shadow: 0 0 15px rgba(255, 51, 102, 0.3); transform: scale(1); }
     }
 
     .footer-tools {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 10px;
+      font-size: 10.5px;
     }
 
     .btn-action {
       background: #06090e;
       border: 1px solid var(--border-color);
-      padding: 6px 12px;
-      border-radius: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
       color: var(--accent-green);
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -321,7 +323,7 @@
         </div>
         <div class="stat-card">
           <div class="stat-title">AI SCORE</div>
-          <div class="stat-value" id="aiScore" style="color: #00a8ff;">STRONG BUY</div>
+          <div class="stat-value" id="aiScore" style="color: #00a8ff;">ANALYZING</div>
         </div>
         <div class="stat-card">
           <div class="stat-title">WIN RATE</div>
@@ -331,12 +333,12 @@
 
       <div class="bias-grid">
         <div class="bias-card">
-          <div style="font-size: 8px; color: var(--text-sub);">🧠 AI CORRECTION BIAS</div>
-          <div style="font-size: 11px; font-weight: 700; color: #00ffcc;">+0.00012</div>
+          <div style="font-size: 8.5px; color: var(--text-sub);">🧠 AI CORRECTION BIAS</div>
+          <div style="font-size: 11.5px; font-weight: 700; color: #00ffcc;">+0.00012</div>
         </div>
         <div class="bias-card">
-          <div style="font-size: 8px; color: var(--text-sub);">💾 PERSISTENT MEMORY</div>
-          <div style="font-size: 11px; font-weight: 700; color: var(--accent-blue);">SAVED (310 Trades)</div>
+          <div style="font-size: 8.5px; color: var(--text-sub);">💾 PERSISTENT MEMORY</div>
+          <div style="font-size: 11.5px; font-weight: 700; color: var(--accent-blue);">SAVED (310 Trades)</div>
         </div>
       </div>
 
@@ -344,34 +346,31 @@
         ⏱️ TF 60s ➔ อีก <span id="countdown">59</span> วิ เปลี่ยนแท่ง
       </div>
 
-      <!-- ปุ่มแสดงสัญญาณไฟเรียลไทม์ -->
+      <!-- 🚀 ช่องไฟส่งสัญญาณขนาดใหญ่พิเศษ -->
       <div class="btn-signal" id="signalBtn" onclick="enableAudioAndTest()">
         PREPARING...
       </div>
 
       <div class="footer-tools">
-        <button class="btn-action" id="audioBtn" onclick="enableAudioAndTest()">🔊 AUDIO: ON</button>
+        <button class="btn-action" id="audioBtn" onclick="enableAudioAndTest()">🔊 AUDIO: HIGH</button>
         <button class="btn-action" style="color: #ff3366;" onclick="location.reload()">RESET</button>
         <span style="color: var(--accent-blue);" id="confText">CONF: -- %</span>
       </div>
     </div>
 
-    <div style="text-align: center; font-size: 9px; color: var(--text-sub); margin-top: 8px;">
+    <div style="text-align: center; font-size: 9.5px; color: var(--text-sub); margin-top: 6px;">
       🤖 AI Signal Engine Running 24/7 Real-Time Data
     </div>
   </div>
 
   <script>
-    // สั่งขยายเต็มจอ
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
     }
 
     let audioCtx = null;
-    let audioReady = false;
 
-    // เปิดใช้งาน AudioContext เมื่อมีการแตะหน้าจอครั้งแรก (ตามกฎเบราว์เซอร์)
     function enableAudioAndTest() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -379,12 +378,11 @@
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
-      audioReady = true;
-      playBeep4Times();
+      playLoudBeep4Times();
     }
 
-    // เสียงแจ้งเตือนติ๊ด 4 ครั้ง ความถี่สูงคมชัด
-    function playBeep4Times() {
+    // 🔊 ระบบเสียงดังชัดเจน ติ๊ด 4 ครั้งยิงเร็วกระชับ
+    function playLoudBeep4Times() {
       if (!audioCtx) return;
       let count = 0;
       const interval = setInterval(() => {
@@ -395,18 +393,21 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // โน้ต A5 (880Hz)
-        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+        osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); // โน้ต C6 (เสียงสูงคมชัด)
+        
+        // ปรับเพิ่มความดังสูงสุด
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.10);
+        
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.12);
+        osc.stop(audioCtx.currentTime + 0.10);
         count++;
-      }, 180);
+      }, 150);
     }
 
-    // ดึงราคาจริงเรียลไทม์ผ่าน API
+    // ดึงราคาจริงจาก Binance API
     async function fetchRealPrice() {
       try {
         const res = await fetch('https://api.binance.com/api/3/ticker/price?symbol=BTCUSDT');
@@ -425,19 +426,18 @@
     }
     setInterval(fetchRealPrice, 1000);
 
-    // ตัวนับถอยหลัง และระบบส่งสัญญาณไฟเข้าปุ่ม
+    // ⏱️ ระบบนับถอยหลัง & ยิงสัญญาณไฟเข้าออเดอร์ใน 2 วินาทีสุดท้าย
     let time = 59;
     const signalBtn = document.getElementById('signalBtn');
     const confText = document.getElementById('confText');
 
     setInterval(() => {
       time--;
-      if (time <= 0) {
-        time = 59;
-        
-        // สุ่มสร้างสัญญาณไฟเรียลไทม์เมื่อเริ่มวิที่ 0
+
+      // 🔥 ส่งสัญญาณไฟล่วงหน้าใน 2 วินาทีสุดท้าย (เมื่อเวลาเหลือ 2 วินาที)
+      if (time === 2) {
         const isCall = Math.random() > 0.5;
-        const conf = (91.0 + Math.random() * 8.5).toFixed(1);
+        const conf = (92.0 + Math.random() * 7.5).toFixed(1);
 
         if (isCall) {
           signalBtn.className = 'btn-signal call';
@@ -452,11 +452,16 @@
         }
 
         confText.innerText = `CONF: ${conf}%`;
-        playBeep4Times(); // ส่งเสียงเตือนติ๊ด 4 ครั้งทันที
+        playLoudBeep4Times(); // ส่งเสียงเตือนติ๊ด 4 ครั้งดังชัดเจนทันที
       }
 
-      // คืนค่าปุ่มเตรียมพร้อมเมื่อเหลือ 10 วิสุดท้าย
-      if (time === 10) {
+      // เมื่อจบแท่ง (ครบ 0 วินาที) เริ่มแท่งใหม่
+      if (time <= 0) {
+        time = 59;
+      }
+
+      // คืนค่าปุ่มเตรียมพร้อมเมื่อผ่านแท่งไปแล้ว 10 วินาที
+      if (time === 49) {
         signalBtn.className = 'btn-signal';
         signalBtn.innerHTML = 'PREPARING...';
         document.getElementById('aiScore').innerText = 'ANALYZING';
@@ -466,7 +471,7 @@
       document.getElementById('countdown').innerText = time;
     }, 1000);
 
-    // ปลดล็อกเสียงเมื่อแตะหน้าจอครั้งแรก
+    // แตะหน้าจอครั้งแรกเพื่อเปิดสิทธิ์ระบบเสียง
     document.body.addEventListener('click', enableAudioAndTest, { once: true });
   </script>
 </body>
