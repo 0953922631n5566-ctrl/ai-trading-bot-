@@ -7,9 +7,10 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 ใส่ Token ใหม่ของคุณตรงนี้
-const TELEGRAM_TOKEN = 'ใส่_TOKEN_ใหม่_ตรงนี้';
+// 🤖 Telegram Bot Token ของคุณ (@Nogfdsabot)
+const TELEGRAM_TOKEN = '8794907863:AAENQLAIxkhyX63oSCiiFg3hKV6gxQpR3s8';
 
+// ใช้ Polling แบบมาตรฐาน เสถียรและไม่ต้องตั้งค่า Webhook URL ให้ยุ่งยาก
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 bot.on('polling_error', (error) => {
@@ -19,8 +20,10 @@ bot.on('polling_error', (error) => {
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// URL ของ Mini App บน Render
 const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
+// คำสั่ง /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   
@@ -38,7 +41,9 @@ bot.onText(/\/start/, (msg) => {
   ).catch((err) => console.error('Send error:', err.message));
 });
 
+// ------------------------------------------------------------------
 // 1. FIREBASE INITIALIZATION
+// ------------------------------------------------------------------
 let db = null;
 try {
   if (process.env.FIREBASE_CONFIG) {
@@ -66,7 +71,9 @@ async function getRealPrice(symbol = 'BTCUSDT') {
   }
 }
 
+// ------------------------------------------------------------------
 // 2. 24/7 BACKGROUND ENGINE
+// ------------------------------------------------------------------
 let activeTrades = [];
 
 setInterval(async () => {
@@ -120,7 +127,9 @@ setInterval(async () => {
   }
 }, 1000);
 
+// ------------------------------------------------------------------
 // 3. API ENDPOINTS & ANTI-SLEEP
+// ------------------------------------------------------------------
 app.get('/ping', (req, res) => {
   res.send({ status: 'ALIVE', timestamp: new Date().toISOString() });
 });
@@ -134,5 +143,5 @@ setInterval(() => {
 }, 4 * 60 * 1000);
 
 app.listen(PORT, () => {
-  console.log(`🚀 AI Signal 24/7 Engine Running`);
+  console.log(`🚀 AI Signal 24/7 Engine Running (Polling Mode)`);
 });
