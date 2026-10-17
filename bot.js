@@ -7,17 +7,17 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Telegram Bot Token ใหม่ของคุณ (@Nogfdsabot)
+// 🤖 Telegram Bot Token (@Nogfdsabot)
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8794907863:AAENQLAIxkhyX63oSCiiFg3hKV6gxQpR3s8';
-const bot = new TelegramBot(TELEGRAM_TOKEN);
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// URL ของ Mini App บน Render ของคุณ
+// URL ของ Mini App บน Render
 const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
-// คำสั่ง /start จะส่งข้อความพร้อมปุ่มเปิด Mini App ให้คุณกดใช้งาน
+// คำสั่ง /start
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   
@@ -66,7 +66,7 @@ async function getRealPrice(symbol = 'BTCUSDT') {
 }
 
 // ------------------------------------------------------------------
-// 2. 24/7 BACKGROUND AUTO-LEARNING ENGINE (ทำงานเบื้องหลังเงียบๆ)
+// 2. 24/7 BACKGROUND ENGINE
 // ------------------------------------------------------------------
 let activeTrades = [];
 
@@ -74,7 +74,6 @@ setInterval(async () => {
   const now = new Date();
   const seconds = now.getSeconds();
 
-  // วินาทีที่ 58: คำนวณสัญญาณเงียบๆ ในระบบหลังบ้าน
   if (seconds === 58) {
     const price = await getRealPrice('BTCUSDT');
     const signalType = Math.random() > 0.48 ? 'CALL' : 'PUT';
@@ -92,7 +91,6 @@ setInterval(async () => {
     activeTrades.push(newTrade);
   }
 
-  // วินาทีที่ 00: ตรวจผลและอัปเดตสถิติลง DB เงียบๆ ไม่รบกวนห้องแชท
   if (seconds === 0 && activeTrades.length > 0) {
     const currentPrice = await getRealPrice('BTCUSDT');
     
@@ -139,5 +137,5 @@ setInterval(() => {
 }, 4 * 60 * 1000);
 
 app.listen(PORT, () => {
-  console.log(`🚀 AI Signal 24/7 Engine Running (Clean Silent Mode + Mini App)`);
+  console.log(`🚀 AI Signal 24/7 Engine Running`);
 });
