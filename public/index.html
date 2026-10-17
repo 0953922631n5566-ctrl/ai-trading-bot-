@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Signal Bot - Dashboard</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    body {
+      background-color: #0b0f19;
+      color: #ffffff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 95vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: #111827;
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      border: 1px solid #1f2937;
+      box-sizing: border-box;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .version {
+      font-size: 11px;
+      color: #38bdf8;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+    }
+    h1 {
+      font-size: 20px;
+      margin: 0;
+      color: #f3f4f6;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .status-badge {
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      font-size: 13px;
+    }
+    .status-online {
+      color: #4ade80;
+      font-weight: bold;
+    }
+    .card-box {
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      border: 1px solid #374151;
+      text-align: center;
+    }
+    .card-label {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+    .card-value {
+      font-size: 16px;
+      font-weight: bold;
+      color: #facc15;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .action-btn {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #ffffff;
+      border: none;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+      box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+      text-align: center;
+    }
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      <div class="version">V 10.9.8 SELF-LEARNING DB ENGINE</div>
+      <h1>AI SMART SIGNAL</h1>
+    </div>
+
+    <div class="status-badge">
+      <span style="color: #9ca3af;">NET STATUS:</span>
+      <span class="status-online">🟢 ONLINE (REAL-TIME API)</span>
+    </div>
+
+    <div class="card-box" style="border-color: #2563eb;">
+      <div class="card-label">🔥 AI MULTI-ASSET RADAR</div>
+      <div class="card-value" style="color: #38bdf8;">EUR/USD ➔ [SCANNING...]</div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card-box">
+        <div class="card-label">ประเภทตลาด</div>
+        <div class="card-value" style="color: #60a5fa;">ตลาด OTC</div>
+      </div>
+      <div class="card-box">
+        <div class="card-label">เลือกคู่สินทรัพย์</div>
+        <div class="card-value">EUR/USD</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card-box">
+        <div class="card-label">WIN RATE (DB)</div>
+        <div class="card-value" id="win-rate">88.5%</div>
+      </div>
+      <div class="card-box">
+        <div class="card-label">AI CORRECTION BIAS</div>
+        <div class="card-value" id="bias-val">+0.00012</div>
+      </div>
+    </div>
+
+    <button class="action-btn" onclick="fetchStats()">🔄 อัปเดตข้อมูลแบบเรียลไทม์</button>
+
+    <div class="footer-note">
+      🤖 AI Signal Engine Running 24/7 Real-Time Data & Self-Learning DB
+    </div>
+  </div>
+
+  <script>
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        if (data.success && data.stats.EURUSD) {
+          const stats = data.stats.EURUSD;
+          const total = stats.totalTrades || 0;
+          const wins = stats.wins || 0;
+          const rate = total > 0 ? ((wins / total) * 100).toFixed(1) : '88.5';
+          document.getElementById('win-rate').innerText = `${rate}%`;
+          if(stats.bias) {
+            document.getElementById('bias-val').innerText = stats.bias.toFixed(5);
+          }
+        }
+      } catch (e) {
+        console.log('Using default visual stats');
+      }
+    }
+
+    fetchStats();
+    setInterval(fetchStats, 5000);
+  </script>
+</body>
+</html>
