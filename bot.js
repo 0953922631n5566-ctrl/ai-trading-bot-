@@ -1,5 +1,6 @@
 const { Telegraf } = require('telegraf');
 const express = require('express');
+const axios = require('axios');
 const path = require('path');
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
@@ -39,7 +40,7 @@ bot.start((ctx) => {
   );
 });
 
-// ระบบรับภาพถ่ายทางแชท Telegram
+// ระบบรับภาพถ่ายทางแชท Telegram เพื่อวิเคราะห์ทันที
 bot.on('photo', async (ctx) => {
   try {
     ctx.reply('🔍 AI กำลังวิเคราะห์ภาพกราฟของคุณสักครู่ครับ...');
@@ -48,9 +49,8 @@ bot.on('photo', async (ctx) => {
     const highestResPhoto = photos[photos.length - 1];
     const fileLink = await ctx.telegram.getFileLink(highestResPhoto.file_id);
 
-    // ดาวน์โหลดรูปภาพและแปลงเป็น Base64 โดยใช้ fetch
-    const imageBuffer = await fetch(fileLink.href).then(res => res.arrayBuffer());
-    const base64Image = Buffer.from(imageBuffer).toString('base64');
+    const response = await axios.get(fileLink.href, { responseType: 'arraybuffer' });
+    const base64Image = Buffer.from(response.data).toString('base64');
 
     const promptText = `คุณคือผู้เชี่ยวชาญการเทรด Binary Options / 8x Trade
 วิเคราะห์ภาพกราฟนี้ (แท่งเทียน, แนวรับแนวต้าน, อินดิเคเตอร์, ไส้เทียน) 
@@ -59,44 +59,33 @@ bot.on('photo', async (ctx) => {
 2. ความมั่นใจ: [XX%]
 3. เหตุผลสั้นๆ: [ระบุ 1 ประโยค]`;
 
-    // เรียกใช้ Gemini API โดยใช้ fetch
-    const geminiRes = await fetch(
+    const geminiRes = await axios.post(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
       {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { text: promptText },
-                {
-                  inline_data: {
-                    mime_type: 'image/jpeg',
-                    data: base64Image
-                  }
+        contents: [
+          {
+            parts: [
+              { text: promptText },
+              {
+                inline_data: {
+                  mime_type: 'image/jpeg',
+                  data: base64Image
                 }
-              ]
-            }
-          ]
-        })
+              }
+            ]
+          }
+        ]
       }
     );
 
-    const data = await geminiRes.json();
+    const aiAnalysis = geminiRes.data.candidates[0].content.parts[0].text;
 
-    if (data.candidates && data.candidates[0]) {
-      const aiAnalysis = data.candidates[0].content.parts[0].text;
+    stats.logs.unshift({
+      time: new Date().toLocaleTimeString('th-TH'),
+      text: aiAnalysis.split('\n')[0]
+    });
 
-      stats.logs.unshift({
-        time: new Date().toLocaleTimeString('th-TH'),
-        text: aiAnalysis.split('\n')[0]
-      });
-
-      ctx.reply(`📊 *ผลการวิเคราะห์จาก AI Vision:*\n\n${aiAnalysis}`, { parse_mode: 'Markdown' });
-    } else {
-      ctx.reply('⚠️ ไม่สามารถวิเคราะห์ภาพได้ กรุณาตรวจสอบ GEMINI_API_KEY หรือส่งภาพใหม่อีกครั้งครับ');
-    }
+    ctx.reply(`📊 *ผลการวิเคราะห์จาก AI Vision:*\n\n${aiAnalysis}`, { parse_mode: 'Markdown' });
 
   } catch (error) {
     console.error('Error analyzing image:', error);
