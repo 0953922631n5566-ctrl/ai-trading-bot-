@@ -7,25 +7,24 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Telegram Bot Token ใหม่ของคุณ (@Nogfdsabot)
+// 🤖 Telegram Bot Token (@Nogfdsabot)
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8794907863:AAENQLAIxkhyX63oSCiiFg3hKV6gxQpR3s8';
 
-// สร้างอินสแตนซ์บอทโดยไม่เปิด polling เพื่อไม่ให้ชนกับระบบ Webhook/Deployment
-const bot = new TelegramBot(TELEGRAM_TOKEN);
+// ใช้ Polling แบบมาตรฐานเพื่อให้ตอบกลับได้ทันทีแน่นอน
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+
+// ดักจับ error ของ polling ไม่ให้แอปดับ
+bot.on('polling_error', (error) => {
+  console.log('Polling notice:', error.message);
+});
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// URL ของ Mini App บน Render ของคุณ
+// URL ของ Mini App บน Render
 const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
-// Endpoint สำหรับรับคำสั่ง Webhook จาก Telegram
-app.post(`/bot${TELEGRAM_TOKEN}`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
-});
-
-// คำสั่ง /start ส่งปุ่มเปิด Mini App ให้ผู้ใช้
+// คำสั่ง /start สำหรับเปิด Mini App
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   
@@ -40,7 +39,7 @@ bot.onText(/\/start/, (msg) => {
         ]
       }
     }
-  ).catch((err) => console.error('Send message error:', err.message));
+  ).catch((err) => console.error('Send error:', err.message));
 });
 
 // ------------------------------------------------------------------
@@ -74,7 +73,7 @@ async function getRealPrice(symbol = 'BTCUSDT') {
 }
 
 // ------------------------------------------------------------------
-// 2. 24/7 BACKGROUND ENGINE (คำนวณเบื้องหลังเงียบๆ)
+// 2. 24/7 BACKGROUND AUTO-LEARNING ENGINE
 // ------------------------------------------------------------------
 let activeTrades = [];
 
@@ -144,15 +143,6 @@ setInterval(() => {
   axios.get(`http://localhost:${PORT}/ping`).catch(() => {});
 }, 4 * 60 * 1000);
 
-app.listen(PORT, async () => {
-  console.log(`🚀 AI Signal 24/7 Engine Running on Port ${PORT}`);
-  
-  // ผูก Webhook อัตโนมัติเมื่อเซิร์ฟเวอร์เริ่มทำงาน
-  try {
-    const webhookUrl = `${MINI_APP_URL}/bot${TELEGRAM_TOKEN}`;
-    await axios.get(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/setWebhook?url=${webhookUrl}`);
-    console.log('✅ Telegram Webhook registered successfully');
-  } catch (err) {
-    console.error('⚠️ Failed to set Webhook:', err.message);
-  }
+app.listen(PORT, () => {
+  console.log(`🚀 AI Signal 24/7 Engine Running (Polling Mode Active)`);
 });
