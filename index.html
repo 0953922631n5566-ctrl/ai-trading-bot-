@@ -207,7 +207,6 @@
       font-weight: 800;
     }
 
-    /* 🔥 ช่องสัญญาณไฟขนาดใหญ่ ดีไซน์สวยงามอลังการ */
     .btn-signal {
       width: 100%;
       padding: 22px 10px;
@@ -292,7 +291,7 @@
 
       <div class="radar-box">
         <div class="radar-title">🔥 AI MULTI-ASSET RADAR (TOP PICK)</div>
-        <div class="radar-value" id="radarText">GBPJPY (OTC) ➔ [CALL] (CONF: 97.5%)</div>
+        <div class="radar-value" id="radarText">EUR/USD ➔ [SCANNING...]</div>
       </div>
 
       <div class="select-grid">
@@ -346,13 +345,12 @@
         ⏱️ TF 60s ➔ อีก <span id="countdown">59</span> วิ เปลี่ยนแท่ง
       </div>
 
-      <!-- 🚀 ช่องไฟส่งสัญญาณขนาดใหญ่พิเศษ -->
-      <div class="btn-signal" id="signalBtn" onclick="enableAudioAndTest()">
+      <div class="btn-signal" id="signalBtn">
         PREPARING...
       </div>
 
       <div class="footer-tools">
-        <button class="btn-action" id="audioBtn" onclick="enableAudioAndTest()">🔊 AUDIO: HIGH</button>
+        <button class="btn-action" id="audioBtn" onclick="testBeep()">🔊 AUDIO: HIGH</button>
         <button class="btn-action" style="color: #ff3366;" onclick="location.reload()">RESET</button>
         <span style="color: var(--accent-blue);" id="confText">CONF: -- %</span>
       </div>
@@ -371,17 +369,20 @@
 
     let audioCtx = null;
 
-    function enableAudioAndTest() {
+    function initAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (audioCtx.state === 'suspended') {
         audioCtx.resume();
       }
+    }
+
+    function testBeep() {
+      initAudio();
       playLoudBeep4Times();
     }
 
-    // 🔊 ระบบเสียงดังชัดเจน ติ๊ด 4 ครั้งยิงเร็วกระชับ
     function playLoudBeep4Times() {
       if (!audioCtx) return;
       let count = 0;
@@ -393,9 +394,8 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime); // โน้ต C6 (เสียงสูงคมชัด)
+        osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime);
         
-        // ปรับเพิ่มความดังสูงสุด
         gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.10);
         
@@ -407,7 +407,6 @@
       }, 150);
     }
 
-    // ดึงราคาจริงจาก Binance API
     async function fetchRealPrice() {
       try {
         const res = await fetch('https://api.binance.com/api/3/ticker/price?symbol=BTCUSDT');
@@ -426,16 +425,19 @@
     }
     setInterval(fetchRealPrice, 1000);
 
-    // ⏱️ ระบบนับถอยหลัง & ยิงสัญญาณไฟเข้าออเดอร์ใน 2 วินาทีสุดท้าย
     let time = 59;
     const signalBtn = document.getElementById('signalBtn');
     const confText = document.getElementById('confText');
+    const radarText = document.getElementById('radarText');
+
+    const radarPairs = ['EUR/USD', 'GBP/USD', 'GBP/JPY (OTC)', 'EUR/JPY (OTC)', 'AUD/USD'];
 
     setInterval(() => {
       time--;
 
-      // 🔥 ส่งสัญญาณไฟล่วงหน้าใน 2 วินาทีสุดท้าย (เมื่อเวลาเหลือ 2 วินาที)
+      // ยิงสัญญาณล่วงหน้า 2 วินาทีสุดท้ายก่อนเปลี่ยนแท่ง
       if (time === 2) {
+        initAudio();
         const isCall = Math.random() > 0.5;
         const conf = (92.0 + Math.random() * 7.5).toFixed(1);
 
@@ -451,16 +453,19 @@
           document.getElementById('aiScore').style.color = '#ff3366';
         }
 
+        // อัปเดตช่องเรดาร์ ให้เปลี่ยนคู่สแกนและค่า CONF แบบเรียลไทม์
+        const randomRadarPair = radarPairs[Math.floor(Math.random() * radarPairs.length)];
+        const radarAction = isCall ? '[CALL]' : '[PUT]';
+        radarText.innerHTML = `${randomRadarPair} ➔ ${radarAction} (CONF: ${conf}%)`;
+
         confText.innerText = `CONF: ${conf}%`;
-        playLoudBeep4Times(); // ส่งเสียงเตือนติ๊ด 4 ครั้งดังชัดเจนทันที
+        playLoudBeep4Times();
       }
 
-      // เมื่อจบแท่ง (ครบ 0 วินาที) เริ่มแท่งใหม่
       if (time <= 0) {
         time = 59;
       }
 
-      // คืนค่าปุ่มเตรียมพร้อมเมื่อผ่านแท่งไปแล้ว 10 วินาที
       if (time === 49) {
         signalBtn.className = 'btn-signal';
         signalBtn.innerHTML = 'PREPARING...';
@@ -471,8 +476,8 @@
       document.getElementById('countdown').innerText = time;
     }, 1000);
 
-    // แตะหน้าจอครั้งแรกเพื่อเปิดสิทธิ์ระบบเสียง
-    document.body.addEventListener('click', enableAudioAndTest, { once: true });
+    // ปลดล็อกระบบเสียงเงียบๆ เมื่อแตะครั้งแรก (ไม่ส่งเสียงรบกวน)
+    document.body.addEventListener('click', initAudio, { once: true });
   </script>
 </body>
 </html>
