@@ -7,10 +7,8 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 ใช้ Token ใหม่ล่าสุด (ดึงจาก Environment หรือใช้ค่าสำรองนี้)
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8973009138:AAHvNh19v4CPYmAyDudLvPSyw3lUH73h56I';
 
-// ใช้ Polling mode ในการรับข้อความ
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 bot.on('polling_error', (error) => {
@@ -18,12 +16,17 @@ bot.on('polling_error', (error) => {
 });
 
 app.use(express.json());
+
+// 📂 กำหนดให้โฟลเดอร์ public เป็นหน้าเว็บหลัก
 app.use(express.static(path.join(__dirname, 'public')));
 
-// URL ของ Mini App บน Render
+// เพิ่มเส้นทางนี้เพื่อให้เปิดหน้าเว็บได้ถูกต้อง
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
-// คำสั่ง /start เมื่อผู้ใช้ทักบอท
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   
@@ -41,9 +44,6 @@ bot.onText(/\/start/, (msg) => {
   ).catch((err) => console.error('Send error:', err.message));
 });
 
-// ------------------------------------------------------------------
-// 1. FIREBASE INITIALIZATION
-// ------------------------------------------------------------------
 let db = null;
 try {
   if (process.env.FIREBASE_CONFIG) {
@@ -52,11 +52,8 @@ try {
       databaseURL: process.env.FIREBASE_DB_URL
     });
     db = admin.database();
-    console.log('✅ Firebase Database connected successfully.');
   }
-} catch (e) {
-  console.log('⚠️ Running in Local/Memory Mode for Firebase Data');
-}
+} catch (e) {}
 
 let memoryStats = {
   EURUSD: { wins: 0, losses: 0, bias: 0.00012, totalTrades: 0, lastSignal: null }
@@ -71,9 +68,6 @@ async function getRealPrice(symbol = 'BTCUSDT') {
   }
 }
 
-// ------------------------------------------------------------------
-// 2. 24/7 BACKGROUND ENGINE (คำนวณสัญญาณวิที่ 58 และสรุปผลวิที่ 00)
-// ------------------------------------------------------------------
 let activeTrades = [];
 
 setInterval(async () => {
@@ -99,45 +93,24 @@ setInterval(async () => {
     
     for (let trade of activeTrades) {
       if (trade.status === 'PENDING') {
-        let isWin = false;
-        if (trade.signal === 'CALL' && currentPrice > trade.entryPrice) isWin = true;
-        if (trade.signal === 'PUT' && currentPrice < trade.entryPrice) isWin = true;
-
+        let isWin = (trade.signal === 'CALL' && currentPrice > trade.entryPrice) ||
+                    (trade.signal === 'PUT' && currentPrice < trade.entryPrice);
         trade.status = isWin ? 'WIN' : 'LOSS';
 
         const stat = memoryStats.EURUSD;
         stat.totalTrades++;
-        if (isWin) {
-          stat.wins++;
-          stat.bias += 0.00005;
-        } else {
-          stat.losses++;
-          stat.bias -= 0.00008;
-        }
+        if (isWin) { stat.wins++; stat.bias += 0.00005; }
+        else { stat.losses++; stat.bias -= 0.00008; }
 
-        if (db) {
-          db.ref('ai_stats/EURUSD').set(stat);
-        }
+        if (db) { db.ref('ai_stats/EURUSD').set(stat); }
       }
     }
     activeTrades = [];
   }
 }, 1000);
 
-// ------------------------------------------------------------------
-// 3. API ENDPOINTS & ANTI-SLEEP
-// ------------------------------------------------------------------
-app.get('/ping', (req, res) => {
-  res.send({ status: 'ALIVE', timestamp: new Date().toISOString() });
-});
-
-app.get('/api/stats', (req, res) => {
-  res.json({ success: true, stats: memoryStats });
-});
-
-setInterval(() => {
-  axios.get(`http://localhost:${PORT}/ping`).catch(() => {});
-}, 4 * 60 * 1000);
+app.get('/ping', (req, res) => res.send({ status: 'ALIVE' }));
+app.get('/api/stats', (req, res) => res.json({ success: true, stats: memoryStats }));
 
 app.listen(PORT, () => {
   console.log(`🚀 AI Signal Engine Running on port ${PORT}`);
