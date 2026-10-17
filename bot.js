@@ -7,24 +7,30 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Telegram Bot Token ของคุณ
+// 🤖 Telegram Bot Token
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8839850954:AAGSlkoHu_BFtuM7Fzc5kPhFjRD1nhmtyZs';
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-let subscribedUsers = new Set();
+// URL ของ Mini App บน Render ของคุณ
+const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
+// คำสั่ง /start จะแสดงเฉพาะปุ่มเปิด Mini App เท่านั้น ไม่มีข้อความรกแชท
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
-  subscribedUsers.add(chatId);
   
   bot.sendMessage(chatId, 
-    `🚀 *ยินดีต้อนรับสู่ AI SMART SIGNAL V10.9.8*\n\n` +
-    `✅ เปิดใช้งานระบบแจ้งเตือนสัญญาณเทรดเรียบร้อยแล้ว!\n` +
-    `ระบบจะส่งสัญญาณคำนวณ Win/Loss และ Bias อัตโนมัติทุกๆ 1 นาทีครับ`,
-    { parse_mode: 'Markdown' }
+    `🤖 *AI SMART SIGNAL DASHBOARD*`,
+    { 
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "📱 เปิดหน้าจอ AI Mini App", web_app: { url: MINI_APP_URL } }]
+        ]
+      }
+    }
   );
 });
 
@@ -59,7 +65,7 @@ async function getRealPrice(symbol = 'BTCUSDT') {
 }
 
 // ------------------------------------------------------------------
-// 2. 24/7 AUTOMATIC TELEGRAM SIGNAL NOTIFIER ENGINE
+// 2. 24/7 BACKGROUND AUTO-LEARNING ENGINE (ทำงานเบื้องหลังเงียบๆ)
 // ------------------------------------------------------------------
 let activeTrades = [];
 
@@ -67,12 +73,10 @@ setInterval(async () => {
   const now = new Date();
   const seconds = now.getSeconds();
 
-  // 🔥 วินาทีที่ 58: คำนวณสัญญาณแล้วยิงข้อความแจ้งเตือนเข้า Telegram Chat
+  // วินาทีที่ 58: คำนวณสัญญาณเงียบๆ ในระบบหลังบ้าน
   if (seconds === 58) {
     const price = await getRealPrice('BTCUSDT');
     const signalType = Math.random() > 0.48 ? 'CALL' : 'PUT';
-    const icon = signalType === 'CALL' ? '🟢' : '🔴';
-    const actionText = signalType === 'CALL' ? 'BUY / CALL (กดขึ้น)' : 'SELL / PUT (กดลง)';
     const tradeId = Date.now();
 
     const newTrade = {
@@ -85,21 +89,9 @@ setInterval(async () => {
     };
 
     activeTrades.push(newTrade);
-
-    const message = 
-      `🚨 *AI SMART SIGNAL ALERT* 🚨\n\n` +
-      `คู่เงิน: *EUR/USD (OTC)*\n` +
-      `คำสั่ง: ${icon} *${actionText}*\n` +
-      `ราคาเข้า: \`${price}\`\n` +
-      `เวลาหมดอายุ: *60 วินาที (TF 1M)*\n\n` +
-      `⏳ _รอสรุปผลหลังจบแท่ง..._`;
-
-    subscribedUsers.forEach(chatId => {
-      bot.sendMessage(chatId, message, { parse_mode: 'Markdown' }).catch(() => {});
-    });
   }
 
-  // 🏁 วินาทีที่ 00: ตรวจผล Win/Loss และยิงแจ้งเตือนสรุปผลเข้า Telegram Chat
+  // วินาทีที่ 00: ตรวจผลและอัปเดตสถิติลง DB เงียบๆ ไม่ยิงข้อความเข้าแชท
   if (seconds === 0 && activeTrades.length > 0) {
     const currentPrice = await getRealPrice('BTCUSDT');
     
@@ -110,7 +102,6 @@ setInterval(async () => {
         if (trade.signal === 'PUT' && currentPrice < trade.entryPrice) isWin = true;
 
         trade.status = isWin ? 'WIN' : 'LOSS';
-        const resultIcon = isWin ? '✅ WIN' : '❌ LOSS';
 
         const stat = memoryStats.EURUSD;
         stat.totalTrades++;
@@ -122,18 +113,9 @@ setInterval(async () => {
           stat.bias -= 0.00008;
         }
 
-        const winRate = ((stat.wins / stat.totalTrades) * 100).toFixed(1);
-
-        const resultMessage = 
-          `📊 *ผลการเทรดออเดอร์ล่าสุด*\n\n` +
-          `ผลลัพธ์: *${resultIcon}*\n` +
-          `ราคาเข้า: \`${trade.entryPrice}\` ➔ ราคาปิด: \`${currentPrice}\`\n\n` +
-          `📈 *สถิติสะสม DB:* ${stat.wins}W / ${stat.losses}L (Winrate${winRate}%)\n` +
-          `🧠 *AI Bias Memory:* \`${stat.bias.toFixed(5)}\``;
-
-        subscribedUsers.forEach(chatId => {
-          bot.sendMessage(chatId, resultMessage, { parse_mode: 'Markdown' }).catch(() => {});
-        });
+        if (db) {
+          db.ref('ai_stats/EURUSD').set(stat);
+        }
       }
     }
     activeTrades = [];
@@ -142,7 +124,7 @@ setInterval(async () => {
 
 // ------------------------------------------------------------------
 // 3. API ENDPOINTS & ANTI-SLEEP
-// ---------------------------------------------------
+// ------------------------------------------------------------------
 app.get('/ping', (req, res) => {
   res.send({ status: 'ALIVE', timestamp: new Date().toISOString() });
 });
@@ -156,5 +138,5 @@ setInterval(() => {
 }, 4 * 60 * 1000);
 
 app.listen(PORT, () => {
-  console.log(`🚀 AI Signal 24/7 Engine Running with Telegram Bot`);
+  console.log(`🚀 AI Signal 24/7 Engine Running (Silent Mode + Mini App)`);
 });
