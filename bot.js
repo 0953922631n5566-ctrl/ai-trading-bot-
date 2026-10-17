@@ -7,10 +7,10 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Token ของบอทรุ่นล่าสุด
-const TELEGRAM_TOKEN = '8973009138:AAF4ESAr1PeFMIHAq4u8cb6VaUFSo5GaKys';
+// 🤖 ใช้ Token ใหม่ล่าสุด (ดึงจาก Environment หรือใช้ค่าสำรองนี้)
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8973009138:AAHvNh19v4CPYmAyDudLvPSyw3lUH73h56I';
 
-// ใช้ Polling แบบมาตรฐาน เสถียรและตอบกลับทันที
+// ใช้ Polling mode ในการรับข้อความ
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 bot.on('polling_error', (error) => {
@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // URL ของ Mini App บน Render
 const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
-// คำสั่ง /start
+// คำสั่ง /start เมื่อผู้ใช้ทักบอท
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   
@@ -72,7 +72,7 @@ async function getRealPrice(symbol = 'BTCUSDT') {
 }
 
 // ------------------------------------------------------------------
-// 2. 24/7 BACKGROUND ENGINE
+// 2. 24/7 BACKGROUND ENGINE (คำนวณสัญญาณวิที่ 58 และสรุปผลวิที่ 00)
 // ------------------------------------------------------------------
 let activeTrades = [];
 
@@ -83,18 +83,15 @@ setInterval(async () => {
   if (seconds === 58) {
     const price = await getRealPrice('BTCUSDT');
     const signalType = Math.random() > 0.48 ? 'CALL' : 'PUT';
-    const tradeId = Date.now();
-
-    const newTrade = {
-      id: tradeId,
+    
+    activeTrades.push({
+      id: Date.now(),
       symbol: 'EUR/USD (OTC)',
       entryPrice: price,
       signal: signalType,
       timestamp: now.toISOString(),
       status: 'PENDING'
-    };
-
-    activeTrades.push(newTrade);
+    });
   }
 
   if (seconds === 0 && activeTrades.length > 0) {
@@ -143,5 +140,5 @@ setInterval(() => {
 }, 4 * 60 * 1000);
 
 app.listen(PORT, () => {
-  console.log(`🚀 AI Signal 24/7 Engine Running (Polling Mode Active)`);
+  console.log(`🚀 AI Signal Engine Running on port ${PORT}`);
 });
