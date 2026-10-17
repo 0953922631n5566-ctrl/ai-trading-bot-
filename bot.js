@@ -7,8 +7,8 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Telegram Bot Token ใหม่ของคุณ
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '869337730:AAF5Y1Fdhyzc4eRi8YehVeEHLXA1b6W_xcY';
+// 🤖 Telegram Bot Token ใหม่ของคุณ (@Nogfdsabot)
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8794907863:AAENQLAIxkhyX63oSCiiFg3hKV6gxQpR3s8';
 const bot = new TelegramBot(TELEGRAM_TOKEN);
 
 app.use(express.json());
