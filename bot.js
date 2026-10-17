@@ -7,10 +7,10 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Telegram Bot Token ของคุณ (@Nogfdsabot)
-const TELEGRAM_TOKEN = '8794907863:AAENQLAIxkhyX63oSCiiFg3hKV6gxQpR3s8';
+// 🤖 Token ใหม่จาก BotFather (@Noghjklbot)
+const TELEGRAM_TOKEN = '8973009138:AAF4ESAr1PeFMIHAq4u8cb6VaUFSo5GaKys';
 
-// ใช้ Polling แบบมาตรฐาน เสถียรและไม่ต้องตั้งค่า Webhook URL ให้ยุ่งยาก
+// ใช้ Polling แบบมาตรฐาน เสถียรและตอบกลับทันที
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 bot.on('polling_error', (error) => {
@@ -143,5 +143,5 @@ setInterval(() => {
 }, 4 * 60 * 1000);
 
 app.listen(PORT, () => {
-  console.log(`🚀 AI Signal 24/7 Engine Running (Polling Mode)`);
+  console.log(`🚀 AI Signal 24/7 Engine Running (Polling Mode Active)`);
 });
