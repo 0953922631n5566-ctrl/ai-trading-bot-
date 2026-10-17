@@ -16,75 +16,34 @@ app.get('/', (req, res) => {
 });
 
 app.get('/ping', (req, res) => {
-  res.send('OK - Server is Active 24/7');
+  res.send('OK');
 });
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
-// Anti-Sleep ระบบรัน 24/7 ไม่ให้ Render หลับ
+// Anti-Sleep ป้องกัน Render หลับ
 setInterval(() => {
   try {
-    http.get(miniAppUrl, (res) => {}).on('error', () => {});
+    http.get(miniAppUrl, () => {}).on('error', () => {});
   } catch (e) {}
 }, 5 * 60 * 1000);
 
-let activeChatId = null;
-
+// คำสั่ง /start แสดงเฉพาะปุ่มกดเปิด Mini App (ไม่ยิงข้อความสแปม)
 bot.onText(/\/start/, (msg) => {
-  activeChatId = msg.chat.id;
-  const options = {
-    reply_markup: {
-      inline_keyboard: [
-        [
-          {
-            text: '🚀 เปิด AI SMART SIGNAL (Full Screen)',
-            web_app: { url: miniAppUrl.trim() }
-          }
-        ]
-      ]
-    }
-  };
-
   bot.sendMessage(
-    activeChatId, 
-    '👋 ยินดีต้อนรับสู่ **AI SMART SIGNAL V10.9.8.Pro**!\n\n🟢 ระบบสแกนตลาดหลัก & OTC ทำงาน 24/7 เรียบร้อยแล้ว กดปุ่มด้านล่างเพื่อเปิดแดชบอร์ด:', 
-    { parse_mode: 'Markdown', ...options }
+    msg.chat.id, 
+    '🟢 **AI SMART SIGNAL V10.9.8.Pro** พร้อมใช้งานแล้วครับ\nกดปุ่มด้านล่างเพื่อเปิดแดชบอร์ดสัญญาณไฟเรียลไทม์:', 
+    {
+      parse_mode: 'Markdown',
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: '🚀 เปิดหน้าจอ AI SMART SIGNAL (เต็มจอ)', web_app: { url: miniAppUrl.trim() } }]
+        ]
+      }
+    }
   );
 });
 
-bot.on('message', (msg) => {
-  if (msg.text && !msg.text.startsWith('/')) {
-    activeChatId = msg.chat.id;
-    bot.sendMessage(msg.chat.id, 'รับทราบครับ! พิมพ์ /start เพื่อเรียกใช้งานเมนูหลัก');
-  }
-});
-
-// รายการคู่เงินทั้งตลาดหลัก (Market) และ OTC ตามที่คุณต้องการ
-const allPairs = [
-  'AUD/USD (ตลาดจริง)', 'EUR/USD (ตลาดจริง)', 'EUR/GBP (ตลาดจริง)', 
-  'GBP/JPY (ตลาดจริง)', 'EUR/JPY (ตลาดจริง)', 'GBP/USD (ตลาดจริง)',
-  'AUD/USD (OTC)', 'EUR/USD (OTC)', 'EUR/GBP (OTC)', 
-  'GBP/JPY (OTC)', 'EUR/JPY (OTC)', 'GBP/USD (OTC)'
-];
-
-// ส่งสัญญาณเตือนอัตโนมัติทุก 2 นาที
-setInterval(() => {
-  if (!activeChatId) return;
-  const confidence = (Math.random() * (99.0 - 92.0) + 92.0).toFixed(1);
-  const action = Math.random() > 0.5 ? 'CALL (ซื้อขึ้น 🟢)' : 'PUT (ซื้อลง 🔴)';
-  const pair = allPairs[Math.floor(Math.random() * allPairs.length)];
-
-  const alertMessage = 
-    `🚨 **AI SMART SIGNAL ALERT** 🚨\n\n` +
-    `🔥 **คู่สินทรัพย์**: ${pair}\n` +
-    `🎯 **สัญญาณ**: **${action}**\n` +
-    `📊 **ความแม่นยำ (CONF)**: **${confidence}%**\n` +
-    `⏱️ **กรอบเวลา**: 1 นาที (TF 60s)\n` +
-    `🟢 **สถานะระบบ**: ONLINE 24/7`;
-
-  bot.sendMessage(activeChatId, alertMessage, { parse_mode: 'Markdown' });
-}, 2 * 60 * 1000);
-
-bot.on('polling_error', (error) => {});
+bot.on('polling_error', () => {});
