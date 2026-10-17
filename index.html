@@ -106,12 +106,19 @@
       box-shadow: 0 0 10px var(--accent-green);
     }
 
+    /* 🔥 กล่องเรดาร์ปรับเป็นปุ่มเมนู กดแล้วเปิดตาราง */
     .radar-box {
-      background: rgba(0, 168, 255, 0.08);
-      border: 1px solid rgba(0, 168, 255, 0.3);
+      background: rgba(0, 168, 255, 0.1);
+      border: 1.5px solid rgba(0, 168, 255, 0.4);
       border-radius: 12px;
       padding: 12px;
       text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .radar-box:active {
+      transform: scale(0.98);
+      background: rgba(0, 168, 255, 0.2);
     }
 
     .radar-title {
@@ -268,6 +275,40 @@
       font-weight: 700;
       cursor: pointer;
     }
+
+    /* 📱 Modal หน้าต่างตารางเรดาร์ */
+    #radarModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(6, 9, 14, 0.9);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .modal-content {
+      background: var(--card-bg);
+      border: 1px solid var(--accent-blue);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+      box-sizing: border-box;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .radar-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #06090e;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 12px;
+      font-weight: 700;
+    }
   </style>
 </head>
 <body>
@@ -289,8 +330,9 @@
         <span><span class="dot"></span> <strong style="color: var(--accent-green);">ONLINE (REAL-TIME API)</strong></span>
       </div>
 
-      <div class="radar-box">
-        <div class="radar-title">🔥 AI MULTI-ASSET RADAR (TOP PICK)</div>
+      <!-- 👆 กดที่กล่องเรดาร์นี้เพื่อเปิดเมนูตารางสถานะเขียว/แดง -->
+      <div class="radar-box" onclick="openRadarModal()">
+        <div class="radar-title">🔥 AI MULTI-ASSET RADAR (กดเพื่อดูสถานะทุกคู่)</div>
         <div class="radar-value" id="radarText">EUR/USD ➔ [SCANNING...]</div>
       </div>
 
@@ -361,6 +403,17 @@
     </div>
   </div>
 
+  <!-- 📋 หน้าต่าง Popup แสดงตารางเรดาร์ทั้งหมด -->
+  <div id="radarModal" onclick="closeRadarModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <h3 style="color: var(--accent-blue); text-align: center; margin-top: 0; font-size: 15px;">📊 AI MULTI-ASSET RADAR STATUS</h3>
+      <div id="radarListContainer">
+        <!-- รายการคู่เงินจะถูกสร้างอัตโนมัติด้วย JavaScript -->
+      </div>
+      <button onclick="closeRadarModal()" style="width: 100%; margin-top: 12px; padding: 10px; background: var(--accent-blue); border: none; border-radius: 8px; color: #fff; font-weight: 800; cursor: pointer;">ปิดหน้าต่าง</button>
+    </div>
+  </div>
+
   <script>
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
@@ -380,11 +433,14 @@
 
     function testBeep() {
       initAudio();
-      playLoudBeep4Times();
+      play4LoudBeeps();
     }
 
-    function playLoudBeep4Times() {
+    // 🔊 เสียงติ๊ด 4 ครั้งติดกันแบบรวดเร็วและดังชัดเจน
+    function play4LoudBeeps() {
+      initAudio();
       if (!audioCtx) return;
+      
       let count = 0;
       const interval = setInterval(() => {
         if (count >= 4) {
@@ -394,17 +450,17 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime);
+        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); // เสียงสูงคมชัด
         
-        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.10);
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
         
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         osc.start();
-        osc.stop(audioCtx.currentTime + 0.10);
+        osc.stop(audioCtx.currentTime + 0.08);
         count++;
-      }, 150);
+      }, 110); // หน่วงสั้นๆ 110 มิลลิวินาที ให้ดังต่อเนื่องติดกัน 4 ครั้ง
     }
 
     async function fetchRealPrice() {
@@ -425,17 +481,54 @@
     }
     setInterval(fetchRealPrice, 1000);
 
+    const radarPairsList = ['EUR/USD (OTC)', 'GBP/USD (OTC)', 'GBP/JPY (OTC)', 'EUR/JPY (OTC)', 'AUD/USD (OTC)', 'EUR/GBP (OTC)'];
+    let currentRadarData = [];
+
+    // สุ่มสถานะเขียว/แดงของทุกคู่ในเรดาร์
+    function updateRadarList() {
+      currentRadarData = radarPairsList.map(pair => {
+        const isCall = Math.random() > 0.5;
+        const conf = (91.0 + Math.random() * 8.0).toFixed(1);
+        return { pair, signal: isCall ? 'CALL' : 'PUT', conf };
+      });
+
+      // อัปเดตข้อความบนปุ่มเรดาร์หลัก
+      const topPick = currentRadarData[0];
+      const radarText = document.getElementById('radarText');
+      radarText.innerHTML = `${topPick.pair} ➔ [${topPick.signal}] (CONF: ${topPick.conf}%)`;
+      radarText.style.color = topPick.signal === 'CALL' ? 'var(--accent-green)' : 'var(--accent-red)';
+    }
+
+    function openRadarModal() {
+      updateRadarList();
+      const container = document.getElementById('radarListContainer');
+      container.innerHTML = '';
+
+      currentRadarData.forEach(item => {
+        const color = item.signal === 'CALL' ? 'var(--accent-green)' : 'var(--accent-red)';
+        container.innerHTML += `
+          <div class="radar-item">
+            <span>${item.pair}</span>
+            <span style="color: ${color};">${item.signal} (CONF: ${item.conf}%)</span>
+          </div>
+        `;
+      });
+
+      document.getElementById('radarModal').style.display = 'flex';
+    }
+
+    function closeRadarModal() {
+      document.getElementById('radarModal').style.display = 'none';
+    }
+
     let time = 59;
     const signalBtn = document.getElementById('signalBtn');
     const confText = document.getElementById('confText');
-    const radarText = document.getElementById('radarText');
-
-    const radarPairs = ['EUR/USD', 'GBP/USD', 'GBP/JPY (OTC)', 'EUR/JPY (OTC)', 'AUD/USD'];
 
     setInterval(() => {
       time--;
 
-      // ยิงสัญญาณล่วงหน้า 2 วินาทีสุดท้ายก่อนเปลี่ยนแท่ง
+      // 🔥 ส่งสัญญาณไฟล่วงหน้าใน 2 วินาทีสุดท้าย + เสียงติ๊ด 4 ครั้ง
       if (time === 2) {
         initAudio();
         const isCall = Math.random() > 0.5;
@@ -453,13 +546,9 @@
           document.getElementById('aiScore').style.color = '#ff3366';
         }
 
-        // อัปเดตช่องเรดาร์ ให้เปลี่ยนคู่สแกนและค่า CONF แบบเรียลไทม์
-        const randomRadarPair = radarPairs[Math.floor(Math.random() * radarPairs.length)];
-        const radarAction = isCall ? '[CALL]' : '[PUT]';
-        radarText.innerHTML = `${randomRadarPair} ➔ ${radarAction} (CONF: ${conf}%)`;
-
         confText.innerText = `CONF: ${conf}%`;
-        playLoudBeep4Times();
+        updateRadarList();
+        play4LoudBeeps(); // เรียกเสียงติ๊ด 4 ครั้งติดกันทันที
       }
 
       if (time <= 0) {
@@ -476,7 +565,6 @@
       document.getElementById('countdown').innerText = time;
     }, 1000);
 
-    // ปลดล็อกระบบเสียงเงียบๆ เมื่อแตะครั้งแรก (ไม่ส่งเสียงรบกวน)
     document.body.addEventListener('click', initAudio, { once: true });
   </script>
 </body>
