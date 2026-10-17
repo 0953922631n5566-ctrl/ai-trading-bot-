@@ -66,6 +66,12 @@
       margin-bottom: 12px;
       border: 1px solid #374151;
       text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .card-box:active {
+      transform: scale(0.98);
+      background: #374151;
     }
     .card-label {
       font-size: 12px;
@@ -118,30 +124,32 @@
       <span class="status-online">🟢 ONLINE (REAL-TIME API)</span>
     </div>
 
-    <div class="card-box" style="border-color: #2563eb;">
+    <div class="card-box" style="border-color: #2563eb; cursor: default;">
       <div class="card-label">🔥 AI MULTI-ASSET RADAR</div>
-      <div class="card-value" style="color: #38bdf8;">EUR/USD ➔ [SCANNING...]</div>
+      <div class="card-value" id="radar-text" style="color: #38bdf8;">EUR/USD ➔ [SCANNING...]</div>
     </div>
 
     <div class="grid-2">
-      <div class="card-box">
-        <div class="card-label">ประเภทตลาด</div>
-        <div class="card-value" style="color: #60a5fa;">ตลาด OTC</div>
+      <!-- กดเพื่อสลับประเภทตลาด -->
+      <div class="card-box" onclick="toggleMarketType()">
+        <div class="card-label">ประเภทตลาด (คลิกเปลี่ยน)</div>
+        <div class="card-value" id="market-type" style="color: #60a5fa;">ตลาด OTC</div>
       </div>
-      <div class="card-box">
-        <div class="card-label">เลือกคู่สินทรัพย์</div>
-        <div class="card-value">EUR/USD</div>
+      <!-- กดเพื่อสลับคู่สินทรัพย์ -->
+      <div class="card-box" onclick="toggleAsset()">
+        <div class="card-label">เลือกคู่สินทรัพย์ (คลิกเปลี่ยน)</div>
+        <div class="card-value" id="asset-name">EUR/USD</div>
       </div>
     </div>
 
     <div class="grid-2">
-      <div class="card-box">
+      <div class="card-box" style="cursor: default;">
         <div class="card-label">WIN RATE (DB)</div>
-        <div class="card-value" id="win-rate">88.5%</div>
+        <div class="card-value" id="win-rate">16.7%</div>
       </div>
-      <div class="card-box">
+      <div class="card-box" style="cursor: default;">
         <div class="card-label">AI CORRECTION BIAS</div>
-        <div class="card-value" id="bias-val">+0.00012</div>
+        <div class="card-value" id="bias-val">-0.00023</div>
       </div>
     </div>
 
@@ -153,6 +161,30 @@
   </div>
 
   <script>
+    let currentMarket = 'ตลาด OTC';
+    let currentAsset = 'EUR/USD';
+
+    const assets = ['EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD'];
+    const markets = ['ตลาด OTC', 'ตลาดจริง (LIVE)'];
+
+    function toggleMarketType() {
+      const marketIndex = markets.indexOf(currentMarket);
+      currentMarket = markets[(marketIndex + 1) % markets.length];
+      document.getElementById('market-type').innerText = currentMarket;
+      updateRadar();
+    }
+
+    function toggleAsset() {
+      const assetIndex = assets.indexOf(currentAsset);
+      currentAsset = assets[(assetIndex + 1) % assets.length];
+      document.getElementById('asset-name').innerText = currentAsset;
+      updateRadar();
+    }
+
+    function updateRadar() {
+      document.getElementById('radar-text').innerText = `${currentAsset} (${currentMarket}) ➔ [SCANNING...]`;
+    }
+
     if (window.Telegram && window.Telegram.WebApp) {
       window.Telegram.WebApp.ready();
       window.Telegram.WebApp.expand();
@@ -166,7 +198,7 @@
           const stats = data.stats.EURUSD;
           const total = stats.totalTrades || 0;
           const wins = stats.wins || 0;
-          const rate = total > 0 ? ((wins / total) * 100).toFixed(1) : '88.5';
+          const rate = total > 0 ? ((wins / total) * 100).toFixed(1) : '16.7';
           document.getElementById('win-rate').innerText = `${rate}%`;
           if(stats.bias) {
             document.getElementById('bias-val').innerText = stats.bias.toFixed(5);
