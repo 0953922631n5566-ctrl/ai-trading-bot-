@@ -106,7 +106,6 @@
       box-shadow: 0 0 10px var(--accent-green);
     }
 
-    /* 🔥 กล่องเรดาร์ปรับเป็นปุ่มเมนู กดแล้วเปิดตาราง */
     .radar-box {
       background: rgba(0, 168, 255, 0.1);
       border: 1.5px solid rgba(0, 168, 255, 0.4);
@@ -276,7 +275,6 @@
       cursor: pointer;
     }
 
-    /* 📱 Modal หน้าต่างตารางเรดาร์ */
     #radarModal {
       display: none;
       position: fixed;
@@ -330,7 +328,6 @@
         <span><span class="dot"></span> <strong style="color: var(--accent-green);">ONLINE (REAL-TIME API)</strong></span>
       </div>
 
-      <!-- 👆 กดที่กล่องเรดาร์นี้เพื่อเปิดเมนูตารางสถานะเขียว/แดง -->
       <div class="radar-box" onclick="openRadarModal()">
         <div class="radar-title">🔥 AI MULTI-ASSET RADAR (กดเพื่อดูสถานะทุกคู่)</div>
         <div class="radar-value" id="radarText">EUR/USD ➔ [SCANNING...]</div>
@@ -392,7 +389,7 @@
       </div>
 
       <div class="footer-tools">
-        <button class="btn-action" id="audioBtn" onclick="testBeep()">🔊 AUDIO: HIGH</button>
+        <button class="btn-action" id="audioBtn" onclick="testBeep()">✈️ AIRPLANE CHIME</button>
         <button class="btn-action" style="color: #ff3366;" onclick="location.reload()">RESET</button>
         <span style="color: var(--accent-blue);" id="confText">CONF: -- %</span>
       </div>
@@ -403,13 +400,10 @@
     </div>
   </div>
 
-  <!-- 📋 หน้าต่าง Popup แสดงตารางเรดาร์ทั้งหมด -->
   <div id="radarModal" onclick="closeRadarModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
       <h3 style="color: var(--accent-blue); text-align: center; margin-top: 0; font-size: 15px;">📊 AI MULTI-ASSET RADAR STATUS</h3>
-      <div id="radarListContainer">
-        <!-- รายการคู่เงินจะถูกสร้างอัตโนมัติด้วย JavaScript -->
-      </div>
+      <div id="radarListContainer"></div>
       <button onclick="closeRadarModal()" style="width: 100%; margin-top: 12px; padding: 10px; background: var(--accent-blue); border: none; border-radius: 8px; color: #fff; font-weight: 800; cursor: pointer;">ปิดหน้าต่าง</button>
     </div>
   </div>
@@ -433,34 +427,49 @@
 
     function testBeep() {
       initAudio();
-      play4LoudBeeps();
+      playAirplaneChime();
     }
 
-    // 🔊 เสียงติ๊ด 4 ครั้งติดกันแบบรวดเร็วและดังชัดเจน
-    function play4LoudBeeps() {
+    // ✈️ เสียงแจ้งเตือนสไตล์กริ่งบนเครื่องบิน (Ding-Dong / Airplane Cabin Chime)
+    function playAirplaneChime() {
       initAudio();
       if (!audioCtx) return;
-      
-      let count = 0;
-      const interval = setInterval(() => {
-        if (count >= 4) {
-          clearInterval(interval);
-          return;
-        }
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1200, audioCtx.currentTime); // เสียงสูงคมชัด
-        
-        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.08);
-        
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.08);
-        count++;
-      }, 110); // หน่วงสั้นๆ 110 มิลลิวินาที ให้ดังต่อเนื่องติดกัน 4 ครั้ง
+
+      const now = audioCtx.currentTime;
+
+      // --- เสียงที่ 1: "ดิ่ง" (High Tone - 587.33 Hz / D5) ---
+      const osc1 = audioCtx.createOscillator();
+      const gain1 = audioCtx.createGain();
+
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(587.33, now); // โน้ต D5
+
+      gain1.gain.setValueAtTime(0, now);
+      gain1.gain.linearRampToValueAtTime(0.4, now + 0.02);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+
+      osc1.connect(gain1);
+      gain1.connect(audioCtx.destination);
+
+      osc1.start(now);
+      osc1.stop(now + 0.8);
+
+      // --- เสียงที่ 2: "ด่อง" (Low Tone - 440 Hz / A4) ตามหลังมา 0.35 วินาที ---
+      const osc2 = audioCtx.createOscillator();
+      const gain2 = audioCtx.createGain();
+
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(440.00, now + 0.35); // โน้ต A4
+
+      gain2.gain.setValueAtTime(0, now + 0.35);
+      gain2.gain.linearRampToValueAtTime(0.4, now + 0.37);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+      osc2.connect(gain2);
+      gain2.connect(audioCtx.destination);
+
+      osc2.start(now + 0.35);
+      osc2.stop(now + 1.2);
     }
 
     async function fetchRealPrice() {
@@ -484,7 +493,6 @@
     const radarPairsList = ['EUR/USD (OTC)', 'GBP/USD (OTC)', 'GBP/JPY (OTC)', 'EUR/JPY (OTC)', 'AUD/USD (OTC)', 'EUR/GBP (OTC)'];
     let currentRadarData = [];
 
-    // สุ่มสถานะเขียว/แดงของทุกคู่ในเรดาร์
     function updateRadarList() {
       currentRadarData = radarPairsList.map(pair => {
         const isCall = Math.random() > 0.5;
@@ -492,7 +500,6 @@
         return { pair, signal: isCall ? 'CALL' : 'PUT', conf };
       });
 
-      // อัปเดตข้อความบนปุ่มเรดาร์หลัก
       const topPick = currentRadarData[0];
       const radarText = document.getElementById('radarText');
       radarText.innerHTML = `${topPick.pair} ➔ [${topPick.signal}] (CONF: ${topPick.conf}%)`;
@@ -509,7 +516,7 @@
         container.innerHTML += `
           <div class="radar-item">
             <span>${item.pair}</span>
-            <span style="color: ${color};">${item.signal} (CONF: ${item.conf}%)</span>
+            <span style="color: ${color}; font-weight: 900;">${item.signal} (CONF: ${item.conf}%)</span>
           </div>
         `;
       });
@@ -528,7 +535,7 @@
     setInterval(() => {
       time--;
 
-      // 🔥 ส่งสัญญาณไฟล่วงหน้าใน 2 วินาทีสุดท้าย + เสียงติ๊ด 4 ครั้ง
+      // 🔥 ส่งสัญญาณใน 2 วินาทีสุดท้าย พร้อมเสียงกริ่งเครื่องบิน (ดิ่ง-ด่อง)
       if (time === 2) {
         initAudio();
         const isCall = Math.random() > 0.5;
@@ -548,7 +555,7 @@
 
         confText.innerText = `CONF: ${conf}%`;
         updateRadarList();
-        play4LoudBeeps(); // เรียกเสียงติ๊ด 4 ครั้งติดกันทันที
+        playAirplaneChime(); // เล่นเสียงกริ่งเครื่องบิน ดิ่ง-ด่อง
       }
 
       if (time <= 0) {
