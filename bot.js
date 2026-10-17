@@ -7,9 +7,8 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Telegram Bot Token
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8839850954:AAGSlkoHu_BFtuM7Fzc5kPhFjRD1nhmtyZs';
-// ปิด polling เพื่อไม่ให้เกิด Error 409 Conflict ซ้ำซ้อน
+// 🤖 Telegram Bot Token ใหม่ของคุณ
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '869337730:AAF5Y1Fdhyzc4eRi8YehVeEHLXA1b6W_xcY';
 const bot = new TelegramBot(TELEGRAM_TOKEN);
 
 app.use(express.json());
@@ -18,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // URL ของ Mini App บน Render ของคุณ
 const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
-// คำสั่ง /start จะส่งข้อความพร้อมปุ่มเปิด Mini App ให้ผู้ใช้กด
+// คำสั่ง /start จะส่งข้อความพร้อมปุ่มเปิด Mini App ให้คุณกดใช้งาน
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   
