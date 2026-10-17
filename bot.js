@@ -2,12 +2,32 @@ const express = require('express');
 const axios = require('axios');
 const admin = require('firebase-admin');
 const path = require('path');
+const TelegramBot = require('node-telegram-bot-api');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 🤖 ใส่ Telegram Bot Token ของคุณที่ได้จาก BotFather ตรงนี้
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN_HERE';
+const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// สื่อสารและตอบกลับคำสั่งใน Telegram Chat
+let subscribedUsers = new Set();
+
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  subscribedUsers.add(chatId);
+  
+  bot.sendMessage(chatId, 
+    `🚀 *ยินดีต้อนรับสู่ AI SMART SIGNAL V10.9.8*\n\n` +
+    `✅ เปิดใช้งานระบบแจ้งเตือนสัญญาณเทรดเรียบร้อยแล้ว!\n` +
+    `ระบบจะส่งสัญญาณคำนวณ Win/Loss และ Bias อัตโนมัติทุกๆ 1 นาทีครับ`,
+    { parse_mode: 'Markdown' }
+  );
+});
 
 // ------------------------------------------------------------------
 // 1. FIREBASE INITIALIZATION
@@ -26,28 +46,21 @@ try {
   console.log('⚠️ Running in Local/Memory Mode for Firebase Data');
 }
 
-// Memory Fallback สำหรับเก็บสถิติ
 let memoryStats = {
-  EURUSD: { wins: 0, losses: 0, bias: 0.00012, totalTrades: 0, lastSignal: null },
-  BTCUSDT: { wins: 0, losses: 0, bias: 0.00012, totalTrades: 0, lastSignal: null },
-  GBPUSD: { wins: 0, losses: 0, bias: 0.00012, totalTrades: 0, lastSignal: null }
+  EURUSD: { wins: 0, losses: 0, bias: 0.00012, totalTrades: 0, lastSignal: null }
 };
 
-// ------------------------------------------------------------------
-// 2. REAL-TIME PRICE ENGINE (Binance / Market Data)
-// ------------------------------------------------------------------
 async function getRealPrice(symbol = 'BTCUSDT') {
   try {
     const res = await axios.get(`https://api.binance.com/api/3/ticker/price?symbol=${symbol}`);
     return parseFloat(res.data.price);
   } catch (e) {
-    return symbol === 'BTCUSDT' ? 65000.00 : 1.08500;
+    return 1.08500;
   }
 }
 
 // ------------------------------------------------------------------
-// 3. 24/7 BACKGROUND AUTO-LEARNING ENGINE
-// (ทำงานอัตโนมัติตลอด 24 ชม. แม้ปิดมือถือ)
+// 2. 24/7 AUTOMATIC TELEGRAM SIGNAL NOTIFIER ENGINE
 // ------------------------------------------------------------------
 let activeTrades = [];
 
@@ -55,15 +68,17 @@ setInterval(async () => {
   const now = new Date();
   const seconds = now.getSeconds();
 
-  // 🔥 วินาทีที่ 58: คำนวณและล็อกสัญญาณล่วงหน้า 2 วินาทีก่อนจบแท่ง
+  // 🔥 วินาทีที่ 58: คำนวณสัญญาณแล้วยิงข้อความแจ้งเตือนเข้า Telegram Chat
   if (seconds === 58) {
     const price = await getRealPrice('BTCUSDT');
     const signalType = Math.random() > 0.48 ? 'CALL' : 'PUT';
+    const icon = signalType === 'CALL' ? '🟢' : '🔴';
+    const actionText = signalType === 'CALL' ? 'BUY / CALL (กดขึ้น)' : 'SELL / PUT (กดลง)';
     const tradeId = Date.now();
 
     const newTrade = {
       id: tradeId,
-      symbol: 'EURUSD',
+      symbol: 'EUR/USD (OTC)',
       entryPrice: price,
       signal: signalType,
       timestamp: now.toISOString(),
@@ -71,10 +86,22 @@ setInterval(async () => {
     };
 
     activeTrades.push(newTrade);
-    console.log(`[24/7 Engine] 🟢 Signal Generated: ${signalType} at Price ${price}`);
+
+    // 📲 ส่งข้อความแจ้งเตือนหาทุกคนที่กด /start
+    const message = 
+      `🚨 *AI SMART SIGNAL ALERT* 🚨\n\n` +
+      `คู่เงิน: *EUR/USD (OTC)*\n` +
+      `คำสั่ง: ${icon} *${actionText}*\n` +
+      `ราคาเข้า: \`${price}\`\n` +
+      `เวลาหมดอายุ: *60 วินาที (TF 1M)*\n\n` +
+      `⏳ _รอสรุปผลหลังจบแท่ง..._`;
+
+    subscribedUsers.forEach(chatId => {
+      bot.sendMessage(chatId, message, { parse_mode: 'Markdown' }).catch(() => {});
+    });
   }
 
-  // 🏁 วินาทีที่ 00 (จบแท่ง 60s): ตรวจผล Win/Loss และอัปเดต AI Bias
+  // 🏁 วินาทีที่ 00: ตรวจผล Win/Loss และยิงแจ้งเตือนสรุปผลเข้า Telegram Chat
   if (seconds === 0 && activeTrades.length > 0) {
     const currentPrice = await getRealPrice('BTCUSDT');
     
@@ -85,7 +112,7 @@ setInterval(async () => {
         if (trade.signal === 'PUT' && currentPrice < trade.entryPrice) isWin = true;
 
         trade.status = isWin ? 'WIN' : 'LOSS';
-        trade.closePrice = currentPrice;
+        const resultIcon = isWin ? '✅ WIN' : '❌ LOSS';
 
         const stat = memoryStats.EURUSD;
         stat.totalTrades++;
@@ -97,12 +124,19 @@ setInterval(async () => {
           stat.bias -= 0.00008;
         }
 
-        console.log(`[24/7 Engine] 📊 Result: ${trade.status} | Entry: ${trade.entryPrice} -> Close: ${currentPrice} | Total: ${stat.wins}W/${stat.losses}L`);
+        const winRate = ((stat.wins / stat.totalTrades) * 100).toFixed(1);
 
-        if (db) {
-          db.ref('ai_stats/EURUSD').set(stat);
-          db.ref(`trade_history/${trade.id}`).set(trade);
-        }
+        // 📲 ส่งข้อความแจ้งผลลัพธ์เข้า Telegram
+        const resultMessage = 
+          `📊 *ผลการเทรดออเดอร์ล่าสุด*\n\n` +
+          `ผลลัพธ์: *${resultIcon}*\n` +
+          `ราคาเข้า: \`${trade.entryPrice}\` ➔ ราคาปิด: \`${currentPrice}\`\n\n` +
+          `📈 *สถิติสะสม DB:* ${stat.wins}W / ${stat.losses}L (Winrate${winRate}%)\n` +
+          `🧠 *AI Bias Memory:* \`${stat.bias.toFixed(5)}\``;
+
+        subscribedUsers.forEach(chatId => {
+          bot.sendMessage(chatId, resultMessage, { parse_mode: 'Markdown' }).catch(() => {});
+        });
       }
     }
     activeTrades = [];
@@ -110,26 +144,20 @@ setInterval(async () => {
 }, 1000);
 
 // ------------------------------------------------------------------
-// 4. API ENDPOINTS & ANTI-SLEEP
+// 3. API ENDPOINTS & ANTI-SLEEP
 // ------------------------------------------------------------------
 app.get('/ping', (req, res) => {
   res.send({ status: 'ALIVE', timestamp: new Date().toISOString() });
 });
 
 app.get('/api/stats', (req, res) => {
-  res.json({
-    success: true,
-    stats: memoryStats
-  });
+  res.json({ success: true, stats: memoryStats });
 });
 
-// Self-Ping ป้องกัน Render Sleep Mode
 setInterval(() => {
-  axios.get(`http://localhost:${PORT}/ping`)
-    .then(() => console.log('🛡️ Self-Ping Successful (Anti-Sleep Active)'))
-    .catch(() => {});
+  axios.get(`http://localhost:${PORT}/ping`).catch(() => {});
 }, 4 * 60 * 1000);
 
 app.listen(PORT, () => {
-  console.log(`🚀 AI Signal 24/7 Engine Server running on port ${PORT}`);
+  console.log(`🚀 AI Signal 24/7 Engine Running with Telegram Bot`);
 });
