@@ -7,14 +7,13 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 ใส่ Telegram Bot Token ของคุณที่ได้จาก BotFather ตรงนี้
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || 'YOUR_TELEGRAM_BOT_TOKEN_HERE';
+// 🤖 Telegram Bot Token ของคุณ
+const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8839850954:AAGSlkoHu_BFtuM7Fzc5kPhFjRD1nhmtyZs';
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// สื่อสารและตอบกลับคำสั่งใน Telegram Chat
 let subscribedUsers = new Set();
 
 bot.onText(/\/start/, (msg) => {
@@ -87,7 +86,6 @@ setInterval(async () => {
 
     activeTrades.push(newTrade);
 
-    // 📲 ส่งข้อความแจ้งเตือนหาทุกคนที่กด /start
     const message = 
       `🚨 *AI SMART SIGNAL ALERT* 🚨\n\n` +
       `คู่เงิน: *EUR/USD (OTC)*\n` +
@@ -126,7 +124,6 @@ setInterval(async () => {
 
         const winRate = ((stat.wins / stat.totalTrades) * 100).toFixed(1);
 
-        // 📲 ส่งข้อความแจ้งผลลัพธ์เข้า Telegram
         const resultMessage = 
           `📊 *ผลการเทรดออเดอร์ล่าสุด*\n\n` +
           `ผลลัพธ์: *${resultIcon}*\n` +
@@ -145,7 +142,7 @@ setInterval(async () => {
 
 // ------------------------------------------------------------------
 // 3. API ENDPOINTS & ANTI-SLEEP
-// ------------------------------------------------------------------
+// ---------------------------------------------------
 app.get('/ping', (req, res) => {
   res.send({ status: 'ALIVE', timestamp: new Date().toISOString() });
 });
