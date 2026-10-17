@@ -7,13 +7,11 @@ const TelegramBot = require('node-telegram-bot-api');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 🤖 Telegram Bot Token (@Nogfdsabot)
-const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN || '8794907863:AAENQLAIxkhyX63oSCiiFg3hKV6gxQpR3s8';
+// 🤖 ใส่ Token ใหม่ของคุณตรงนี้
+const TELEGRAM_TOKEN = 'ใส่_TOKEN_ใหม่_ตรงนี้';
 
-// ใช้ Polling แบบมาตรฐานเพื่อให้ตอบกลับได้ทันทีแน่นอน
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 
-// ดักจับ error ของ polling ไม่ให้แอปดับ
 bot.on('polling_error', (error) => {
   console.log('Polling notice:', error.message);
 });
@@ -21,10 +19,8 @@ bot.on('polling_error', (error) => {
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// URL ของ Mini App บน Render
 const MINI_APP_URL = 'https://ai-trading-bot-hv5q.onrender.com';
 
-// คำสั่ง /start สำหรับเปิด Mini App
 bot.onText(/\/start/, (msg) => {
   const chatId = msg.chat.id;
   
@@ -42,9 +38,7 @@ bot.onText(/\/start/, (msg) => {
   ).catch((err) => console.error('Send error:', err.message));
 });
 
-// ------------------------------------------------------------------
 // 1. FIREBASE INITIALIZATION
-// ------------------------------------------------------------------
 let db = null;
 try {
   if (process.env.FIREBASE_CONFIG) {
@@ -72,9 +66,7 @@ async function getRealPrice(symbol = 'BTCUSDT') {
   }
 }
 
-// ------------------------------------------------------------------
-// 2. 24/7 BACKGROUND AUTO-LEARNING ENGINE
-// ------------------------------------------------------------------
+// 2. 24/7 BACKGROUND ENGINE
 let activeTrades = [];
 
 setInterval(async () => {
@@ -128,9 +120,7 @@ setInterval(async () => {
   }
 }, 1000);
 
-// ------------------------------------------------------------------
 // 3. API ENDPOINTS & ANTI-SLEEP
-// ------------------------------------------------------------------
 app.get('/ping', (req, res) => {
   res.send({ status: 'ALIVE', timestamp: new Date().toISOString() });
 });
@@ -144,5 +134,5 @@ setInterval(() => {
 }, 4 * 60 * 1000);
 
 app.listen(PORT, () => {
-  console.log(`🚀 AI Signal 24/7 Engine Running (Polling Mode Active)`);
+  console.log(`🚀 AI Signal 24/7 Engine Running`);
 });
